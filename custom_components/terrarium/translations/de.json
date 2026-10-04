@@ -9,7 +9,8 @@
           "species": "Artprofil",
           "temperature_sensors": "Temperatursensoren",
           "humidity_sensors": "Luftfeuchtesensoren",
-          "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)"
+          "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)",
+          "light_switches": "Licht-Schalter (optional, werden nach Lichtzeiten geschaltet)"
         }
       }
     },
@@ -26,7 +27,8 @@
           "species": "Artprofil",
           "temperature_sensors": "Temperatursensoren",
           "humidity_sensors": "Luftfeuchtesensoren",
-          "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)"
+          "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)",
+          "light_switches": "Licht-Schalter (optional, werden nach Lichtzeiten geschaltet)"
         }
       }
     }
@@ -63,6 +65,14 @@
       },
       "daytime": {
         "name": "Tag"
+      },
+      "light_fault": {
+        "name": "Lichtstörung"
+      }
+    },
+    "switch": {
+      "light_automation": {
+        "name": "Lichtautomatik"
       }
     },
     "time": {

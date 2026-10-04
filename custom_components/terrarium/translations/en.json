@@ -9,7 +9,8 @@
           "species": "Species profile",
           "temperature_sensors": "Temperature sensors",
           "humidity_sensors": "Humidity sensors",
-          "misting_switch": "Misting switch (optional, turning on = misted)"
+          "misting_switch": "Misting switch (optional, turning on = misted)",
+          "light_switches": "Light switches (optional, switched by the light times)"
         }
       }
     },
@@ -26,7 +27,8 @@
           "species": "Species profile",
           "temperature_sensors": "Temperature sensors",
           "humidity_sensors": "Humidity sensors",
-          "misting_switch": "Misting switch (optional, turning on = misted)"
+          "misting_switch": "Misting switch (optional, turning on = misted)",
+          "light_switches": "Light switches (optional, switched by the light times)"
         }
       }
     }
@@ -63,6 +65,14 @@
       },
       "daytime": {
         "name": "Daytime"
+      },
+      "light_fault": {
+        "name": "Light fault"
+      }
+    },
+    "switch": {
+      "light_automation": {
+        "name": "Light automation"
       }
     },
     "time": {

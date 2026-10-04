@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime, time, timedelta
 from typing import Any
@@ -15,18 +16,25 @@ from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_interval,
 )
+from homeassistant.helpers.start import async_at_started
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_HUMIDITY_SENSORS,
+    CONF_LIGHT_SWITCHES,
     CONF_MISTING_SWITCH,
     CONF_TEMPERATURE_SENSORS,
     DEFAULT_LIGHT_TIMES,
     DOMAIN,
     EVENT_KEYS,
+    EVENT_TERRARIUM,
     GENERIC_DEFAULTS,
+    LIGHT_RETRY_DELAY,
+    LIGHT_RETRY_PAUSE,
     LIGHT_TIME_KEYS,
+    LIGHT_TRIES,
+    LIGHT_TRIES_BEFORE_PAUSE,
     SETPOINT_KEYS,
     STATUS_NO_DATA,
     STATUS_OK,
@@ -60,6 +68,10 @@ class TerrariumController:
         )
         self.humidity_sensors: list[str] = list(config.get(CONF_HUMIDITY_SENSORS, []))
         self.misting_switch: str | None = config.get(CONF_MISTING_SWITCH)
+        self.light_switches: list[str] = list(config.get(CONF_LIGHT_SWITCHES, []))
+        self.light_automation = True
+        self.light_fault = False
+        self._light_task: asyncio.Task[None] | None = None
         self.signal = f"{DOMAIN}_update_{entry.entry_id}"
         self.setpoints: dict[str, float] = {}
         self.events: dict[str, datetime | None] = dict.fromkeys(EVENT_KEYS)
@@ -101,6 +113,8 @@ class TerrariumController:
                 DEFAULT_LIGHT_TIMES[key]
             )
 
+        self.light_automation = bool(stored.get("light_automation", True))
+
         for key in EVENT_KEYS:
             raw = stored.get("events", {}).get(key)
             self.events[key] = dt_util.parse_datetime(raw) if raw else None
@@ -127,6 +141,9 @@ class TerrariumController:
         self.entry.async_on_unload(
             async_track_time_interval(self.hass, self._handle_tick, timedelta(minutes=1))
         )
+        if self.light_switches:
+            # Bring the lights in line with the schedule once HA is up
+            self.entry.async_on_unload(async_at_started(self.hass, self._started))
 
     async def async_flush(self) -> None:
         """Persist immediately (used on unload)."""
@@ -229,6 +246,77 @@ class TerrariumController:
     def async_set_light_time(self, key: str, value: time) -> None:
         self.light_times[key] = value
         self._changed()
+        self._schedule_light_sync()
+
+    @callback
+    def async_set_light_automation(self, value: bool) -> None:
+        self.light_automation = value
+        self._changed()
+        self._schedule_light_sync()
+
+    # ------------------------------------------------------------------ light
+
+    @callback
+    def _fire_event(self, event_type: str) -> None:
+        """Fire a bus event that automations can use for notifications."""
+        self.hass.bus.async_fire(
+            EVENT_TERRARIUM,
+            {
+                "entry_id": self.entry.entry_id,
+                "terrarium": self.entry.title,
+                "type": event_type,
+            },
+        )
+
+    @callback
+    def _started(self, hass: HomeAssistant) -> None:
+        self._schedule_light_sync()
+
+    @callback
+    def _schedule_light_sync(self) -> None:
+        """(Re)start the task that brings the lights in line with the schedule."""
+        if self._light_task is not None and not self._light_task.done():
+            self._light_task.cancel()
+        if not (self.light_switches and self.light_automation):
+            self._set_light_fault(False)
+            return
+        self._light_task = self.entry.async_create_background_task(
+            self.hass, self._async_apply_light(), f"{DOMAIN}_light_{self.entry.entry_id}"
+        )
+
+    def _lights_match(self, want_on: bool) -> bool:
+        for entity_id in self.light_switches:
+            state = self.hass.states.get(entity_id)
+            if state is None or state.state not in (STATE_ON, STATE_OFF):
+                return False
+            if (state.state == STATE_ON) != want_on:
+                return False
+        return True
+
+    async def _async_apply_light(self) -> None:
+        """Switch the lights to the wanted state and verify, retrying on failure."""
+        want_on = self.is_day
+        for attempt in range(LIGHT_TRIES):
+            if attempt == LIGHT_TRIES_BEFORE_PAUSE:
+                await asyncio.sleep(LIGHT_RETRY_PAUSE)
+            if self._lights_match(want_on):
+                break
+            await self.hass.services.async_call(
+                "homeassistant",
+                "turn_on" if want_on else "turn_off",
+                {"entity_id": self.light_switches},
+                blocking=False,
+            )
+            await asyncio.sleep(LIGHT_RETRY_DELAY)
+        self._set_light_fault(not self._lights_match(want_on))
+
+    @callback
+    def _set_light_fault(self, fault: bool) -> None:
+        if fault == self.light_fault:
+            return
+        self.light_fault = fault
+        async_dispatcher_send(self.hass, self.signal)
+        self._fire_event("light_fault" if fault else "light_fault_cleared")
 
     @callback
     def _changed(self) -> None:
@@ -253,14 +341,18 @@ class TerrariumController:
     def _handle_tick(self, now: datetime) -> None:
         due, day = self.feeding_due, self.is_day
         if due != self._last_due or day != self._last_day:
+            phase_changed = day != self._last_day
             self._last_due, self._last_day = due, day
             async_dispatcher_send(self.hass, self.signal)
+            if phase_changed:
+                self._schedule_light_sync()
 
     def _data_to_save(self) -> dict[str, Any]:
         return {
             "species": self.species_id,
             "setpoints": self.setpoints,
             "light_times": {k: v.isoformat() for k, v in self.light_times.items()},
+            "light_automation": self.light_automation,
             "events": {
                 k: (v.isoformat() if v else None) for k, v in self.events.items()
             },

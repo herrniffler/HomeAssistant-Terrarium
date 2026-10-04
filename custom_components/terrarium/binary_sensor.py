@@ -19,13 +19,14 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     controller = entry.runtime_data
-    async_add_entities(
-        [
-            OutOfRange(controller, "out_of_range"),
-            FeedingDue(controller, "feeding_due"),
-            DayPhase(controller, "daytime"),
-        ]
-    )
+    entities: list[TerrariumEntity] = [
+        OutOfRange(controller, "out_of_range"),
+        FeedingDue(controller, "feeding_due"),
+        DayPhase(controller, "daytime"),
+    ]
+    if controller.light_switches:
+        entities.append(LightFault(controller, "light_fault"))
+    async_add_entities(entities)
 
 
 class OutOfRange(TerrariumEntity, BinarySensorEntity):
@@ -43,6 +44,17 @@ class FeedingDue(TerrariumEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         return self.controller.feeding_due
+
+
+class LightFault(TerrariumEntity, BinarySensorEntity):
+    """On when the lights could not be switched to the wanted state after all retries."""
+
+    _attr_translation_key = "light_fault"
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.light_fault
 
 
 class DayPhase(TerrariumEntity, BinarySensorEntity):

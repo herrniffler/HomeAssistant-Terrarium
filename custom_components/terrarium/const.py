@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 DOMAIN = "terrarium"
+EVENT_TERRARIUM = f"{DOMAIN}_event"
 
 CONF_SPECIES = "species"
 CONF_TEMPERATURE_SENSORS = "temperature_sensors"
 CONF_HUMIDITY_SENSORS = "humidity_sensors"
 CONF_MISTING_SWITCH = "misting_switch"
+CONF_LIGHT_SWITCHES = "light_switches"
 
 SPECIES_CUSTOM = "custom"
 USER_SPECIES_FILE = "terrarium_species.json"
@@ -38,6 +40,12 @@ GENERIC_DEFAULTS: dict[str, float] = {
 # Daily light schedule (exposed as time entities); day = on <= now < off
 LIGHT_TIME_KEYS = ("light_on", "light_off")
 DEFAULT_LIGHT_TIMES = {"light_on": "08:00:00", "light_off": "20:00:00"}
+
+# Light switching: 3 tries 5 s apart, pause 12 min, 3 more tries, then report a fault
+LIGHT_TRIES = 6
+LIGHT_TRIES_BEFORE_PAUSE = 3
+LIGHT_RETRY_DELAY = 5  # seconds
+LIGHT_RETRY_PAUSE = 12 * 60  # seconds
 
 # Logged care events (exposed as datetime entities / buttons)
 EVENT_KEYS = ("last_fed", "last_shed", "last_misted")
