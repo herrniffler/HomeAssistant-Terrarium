@@ -23,15 +23,16 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 ## Pro Terrarium entsteht ein Gerät mit
 **Überwachung**
 - **Status** (ok / zu warm / zu kalt / kalte Seite zu warm / kalte Seite zu kalt / kein Gradient / zu trocken / zu feucht / keine Daten) und **Außerhalb Sollbereich**
-- **Temperatur**, **Luftfeuchte** (Mittelwert der Sensoren, `min`/`max` als Attribute), mit kalter Seite zusätzlich **Temperatur kalte Seite** und **Gradient**
+- **Temperatur warm**, **Luftfeuchte** (Mittelwert der Sensoren, `min`/`max` als Attribute), mit kalter Seite zusätzlich **Temperatur kalt** und **Gradient**
 - **Sollwerte** als `number`, vorbelegt aus dem Artprofil: Temperatur und Luftfeuchte min/max für Tag und Nacht, Fütterungsintervall
 
 **Tag und Nacht**
-- **Licht an / Licht aus** (`time`): dazwischen ist Tag, sonst Nacht. Der Status prüft gegen die Sollwerte der aktuellen Phase. Sensor **Tag** zeigt die Phase.
+- **Licht: an / Licht: aus** (`time`): dazwischen ist Tag, sonst Nacht. Der Status prüft gegen die Sollwerte der aktuellen Phase. Sensor **Tag** zeigt die Phase.
 - Die Lichtzeiten können von einer eigenen Automation gesetzt werden (`time.set_value`), z. B. aus Sonnenstand oder Strompreis.
 
 **Gradient (nur mit Sensoren für die kalte Seite)**
-- `Temperatur min/max` gelten dann für die warme Seite, dazu eigene Werte für die kalte Seite und ein **Mindest-Gradient** (warm minus kalt, nur am Tag geprüft, 0 = aus).
+- Am Tag gilt **Temperatur warm min/max (Tag)** für die warme Seite, dazu gibt es **Temperatur kalt min/max (Tag)** und **Gradient: min** (warm minus kalt, 0 = nicht prüfen).
+- Nachts, wenn die Seiten sich angleichen, gelten die Nachtwerte für alle Sensoren zusammen, der Gradient wird nicht geprüft.
 - Ohne Sensoren für die kalte Seite gilt eine Spanne für alle Sensoren.
 
 **Pflege-Log**
@@ -39,15 +40,15 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 - **Fütterung fällig** und **Nächste Fütterung**
 
 **Lichtsteuerung** (mit Licht-Schaltern)
-- Die Schalter folgen den Lichtzeiten. Nach dem Schalten wird der Zustand geprüft: 3 Versuche im Abstand von 5 s, 12 Minuten Pause, 3 weitere Versuche, danach **Lichtstörung**.
-- **Lichtautomatik** schaltet das ein oder aus.
+- Die Schalter folgen den Lichtzeiten. Nach dem Schalten wird der Zustand geprüft: 3 Versuche im Abstand von 5 s, 12 Minuten Pause, 3 weitere Versuche, danach **Licht: Störung**.
+- **Licht: Automatik** schaltet das ein oder aus.
 
 **Abkühlung** (mit Licht-Schaltern)
-- Liegt die warme Seite 5 Minuten über **Abkühlung ab** (0 = aus), geht das Licht aus (**Kühlt ab**).
-- Es geht wieder an, wenn die warme Seite darunter liegt und der Unterschied zur kältesten Messung kleiner als **max. Differenz warm/kalt** ist, 10 Minuten lang. Timeout nach 4 Stunden, Tagesende beendet die Abkühlung ebenfalls. Der Zustand überlebt einen Neustart.
+- Liegt die warme Seite 5 Minuten über **Abkühlung: ab Temperatur** (0 = aus), geht das Licht aus (**Abkühlung: aktiv**).
+- Es geht wieder an, wenn die warme Seite darunter liegt und der Unterschied zur kältesten Messung kleiner als **Abkühlung: max. Differenz** ist, 10 Minuten lang. Timeout nach 4 Stunden, Tagesende beendet die Abkühlung ebenfalls. Der Zustand überlebt einen Neustart.
 
 **Automatische Beregnung** (mit Beregnungs-Schalter)
-- Schalter **Automatische Beregnung**: Ist er an und die Luftfeuchte unter **Beregnen unter**, wird der Beregnungs-Schalter für **Beregnungsdauer** eingeschaltet (nur am Tag). Zwischen zwei Beregnungen liegt mindestens der **Mindestabstand**; auch manuelles Beregnen zählt dafür.
+- Schalter **Beregnung: Automatik**: Ist er an und die Luftfeuchte unter **Beregnung: unter Luftfeuchte**, wird der Beregnungs-Schalter für **Beregnung: Dauer** eingeschaltet (nur am Tag). Zwischen zwei Beregnungen liegt mindestens der **Beregnung: Mindestabstand**; auch manuelles Beregnen zählt dafür.
 
 ## Events für Automationen
 Das Event `terrarium_event` hat die Felder `terrarium` (Name), `entry_id` und `type`:
@@ -69,7 +70,7 @@ Damit lassen sich Benachrichtigungen bauen, die Integration verschickt selbst ke
 }
 ```
 
-Optional sind alle Felder außer `name`: `cold_temp_min`, `cold_temp_max`, `gradient_min` (kalte Seite), sowie Nachtwerte `temp_min_night`, `temp_max_night`, `humidity_min_night`, `humidity_max_night` (sonst gleich den Tagwerten).
+Optional sind alle Felder außer `name`: `cold_temp_min`, `cold_temp_max`, `gradient_min` (kalte Seite am Tag), sowie Nachtwerte `temp_min_night`, `temp_max_night`, `humidity_min_night`, `humidity_max_night` (sonst gleich den Tagwerten).
 
 ## Hinweise
 - Die mitgelieferten Werte sind grobe Startwerte (`"verified": false`), bitte gegen die eigene Haltung prüfen.

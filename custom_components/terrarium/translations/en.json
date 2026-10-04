@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Add terrarium",
-        "description": "Temperature/humidity sensors are optional. With several sensors the coldest and warmest reading are checked against the range (useful for gradients).",
+        "description": "Everything except name and species is optional. Without cold-side sensors all temperature sensors are checked against one shared range. With a cold side, the range applies to the warm side by day and the cold side has its own values.",
         "data": {
           "name": "Name",
           "species": "Species profile",
@@ -51,106 +51,106 @@
           "no_data": "No data"
         }
       },
-      "next_feeding": {
-        "name": "Next feeding"
-      },
       "temperature": {
-        "name": "Temperature"
+        "name": "Temperature warm"
       },
       "temperature_cold": {
-        "name": "Cold-side temperature"
+        "name": "Temperature cold"
       },
       "gradient": {
         "name": "Gradient"
       },
       "humidity": {
         "name": "Humidity"
+      },
+      "next_feeding": {
+        "name": "Feeding: next"
       }
     },
     "binary_sensor": {
       "out_of_range": {
         "name": "Out of range"
       },
-      "feeding_due": {
-        "name": "Feeding due"
-      },
       "daytime": {
         "name": "Daytime"
       },
+      "feeding_due": {
+        "name": "Feeding: due"
+      },
       "light_fault": {
-        "name": "Light fault"
+        "name": "Light: fault"
       },
       "cooling": {
-        "name": "Cooling down"
+        "name": "Cooling: active"
       }
     },
     "switch": {
       "light_automation": {
-        "name": "Light automation"
+        "name": "Light: automation"
       },
       "auto_misting": {
-        "name": "Automatic misting"
+        "name": "Misting: automation"
       }
     },
     "time": {
       "light_on": {
-        "name": "Light on"
+        "name": "Light: on"
       },
       "light_off": {
-        "name": "Light off"
+        "name": "Light: off"
       }
     },
     "number": {
       "temp_min": {
-        "name": "Minimum temperature (day)"
+        "name": "Temperature warm min (day)"
       },
       "temp_max": {
-        "name": "Maximum temperature (day)"
-      },
-      "humidity_min": {
-        "name": "Minimum humidity (day)"
-      },
-      "humidity_max": {
-        "name": "Maximum humidity (day)"
+        "name": "Temperature warm max (day)"
       },
       "temp_min_night": {
-        "name": "Minimum temperature (night)"
+        "name": "Temperature min (night)"
       },
       "temp_max_night": {
-        "name": "Maximum temperature (night)"
+        "name": "Temperature max (night)"
+      },
+      "humidity_min": {
+        "name": "Humidity min (day)"
+      },
+      "humidity_max": {
+        "name": "Humidity max (day)"
       },
       "humidity_min_night": {
-        "name": "Minimum humidity (night)"
+        "name": "Humidity min (night)"
       },
       "humidity_max_night": {
-        "name": "Maximum humidity (night)"
-      },
-      "cooling_threshold": {
-        "name": "Cool down above (0 = off)"
-      },
-      "cooling_spread": {
-        "name": "Cool down: max. warm/cold difference"
+        "name": "Humidity max (night)"
       },
       "cold_temp_min": {
-        "name": "Cold side minimum temperature (day)"
+        "name": "Temperature cold min (day)"
       },
       "cold_temp_max": {
-        "name": "Cold side maximum temperature (day)"
+        "name": "Temperature cold max (day)"
       },
       "gradient_min": {
-        "name": "Minimum warm/cold gradient (0 = off)"
+        "name": "Gradient: min"
+      },
+      "cooling_threshold": {
+        "name": "Cooling: above temperature"
+      },
+      "cooling_spread": {
+        "name": "Cooling: max. difference"
       },
       "misting_below": {
-        "name": "Mist below"
+        "name": "Misting: below humidity"
       },
       "misting_duration": {
-        "name": "Misting duration"
+        "name": "Misting: duration"
       },
       "misting_interval": {
         "name": "Misting: minimum interval"
       },
       "feeding_interval": {
-        "name": "Feeding interval"
+        "name": "Feeding: interval"
       }
     },
     "datetime": {
@@ -166,13 +166,13 @@
     },
     "button": {
       "fed": {
-        "name": "Mark as fed"
+        "name": "Fed"
       },
       "shed": {
-        "name": "Mark as shed"
+        "name": "Shed"
       },
       "misted": {
-        "name": "Mark as misted"
+        "name": "Misted"
       }
     }
   }

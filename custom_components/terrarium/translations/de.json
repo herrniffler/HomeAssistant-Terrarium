@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Terrarium hinzufügen",
-        "description": "Sensoren sind optional. Bei mehreren Sensoren werden der kälteste und der wärmste Wert gegen den Bereich geprüft (sinnvoll bei Gradienten).",
+        "description": "Alles außer Name und Artprofil ist optional. Ohne Sensoren für die kalte Seite werden alle Temperatursensoren gegen eine gemeinsame Spanne geprüft. Mit kalter Seite gilt die Spanne am Tag für die warme Seite, die kalte Seite hat eigene Werte.",
         "data": {
           "name": "Name",
           "species": "Artprofil",
@@ -51,67 +51,61 @@
           "no_data": "Keine Daten"
         }
       },
-      "next_feeding": {
-        "name": "Nächste Fütterung"
-      },
       "temperature": {
-        "name": "Temperatur"
+        "name": "Temperatur warm"
       },
       "temperature_cold": {
-        "name": "Temperatur kalte Seite"
+        "name": "Temperatur kalt"
       },
       "gradient": {
         "name": "Gradient"
       },
       "humidity": {
         "name": "Luftfeuchte"
+      },
+      "next_feeding": {
+        "name": "Fütterung: nächste"
       }
     },
     "binary_sensor": {
       "out_of_range": {
         "name": "Außerhalb Sollbereich"
       },
-      "feeding_due": {
-        "name": "Fütterung fällig"
-      },
       "daytime": {
         "name": "Tag"
       },
+      "feeding_due": {
+        "name": "Fütterung: fällig"
+      },
       "light_fault": {
-        "name": "Lichtstörung"
+        "name": "Licht: Störung"
       },
       "cooling": {
-        "name": "Kühlt ab"
+        "name": "Abkühlung: aktiv"
       }
     },
     "switch": {
       "light_automation": {
-        "name": "Lichtautomatik"
+        "name": "Licht: Automatik"
       },
       "auto_misting": {
-        "name": "Automatische Beregnung"
+        "name": "Beregnung: Automatik"
       }
     },
     "time": {
       "light_on": {
-        "name": "Licht an"
+        "name": "Licht: an"
       },
       "light_off": {
-        "name": "Licht aus"
+        "name": "Licht: aus"
       }
     },
     "number": {
       "temp_min": {
-        "name": "Temperatur min (Tag)"
+        "name": "Temperatur warm min (Tag)"
       },
       "temp_max": {
-        "name": "Temperatur max (Tag)"
-      },
-      "humidity_min": {
-        "name": "Luftfeuchte min (Tag)"
-      },
-      "humidity_max": {
-        "name": "Luftfeuchte max (Tag)"
+        "name": "Temperatur warm max (Tag)"
       },
       "temp_min_night": {
         "name": "Temperatur min (Nacht)"
@@ -119,38 +113,44 @@
       "temp_max_night": {
         "name": "Temperatur max (Nacht)"
       },
+      "humidity_min": {
+        "name": "Luftfeuchte min (Tag)"
+      },
+      "humidity_max": {
+        "name": "Luftfeuchte max (Tag)"
+      },
       "humidity_min_night": {
         "name": "Luftfeuchte min (Nacht)"
       },
       "humidity_max_night": {
         "name": "Luftfeuchte max (Nacht)"
       },
-      "cooling_threshold": {
-        "name": "Abkühlung ab (0 = aus)"
-      },
-      "cooling_spread": {
-        "name": "Abkühlung: max. Differenz warm/kalt"
-      },
       "cold_temp_min": {
-        "name": "Kalte Seite Temperatur min (Tag)"
+        "name": "Temperatur kalt min (Tag)"
       },
       "cold_temp_max": {
-        "name": "Kalte Seite Temperatur max (Tag)"
+        "name": "Temperatur kalt max (Tag)"
       },
       "gradient_min": {
-        "name": "Mindest-Gradient warm/kalt (0 = aus)"
+        "name": "Gradient: min"
+      },
+      "cooling_threshold": {
+        "name": "Abkühlung: ab Temperatur"
+      },
+      "cooling_spread": {
+        "name": "Abkühlung: max. Differenz"
       },
       "misting_below": {
-        "name": "Beregnen unter"
+        "name": "Beregnung: unter Luftfeuchte"
       },
       "misting_duration": {
-        "name": "Beregnungsdauer"
+        "name": "Beregnung: Dauer"
       },
       "misting_interval": {
         "name": "Beregnung: Mindestabstand"
       },
       "feeding_interval": {
-        "name": "Fütterungsintervall"
+        "name": "Fütterung: Intervall"
       }
     },
     "datetime": {
