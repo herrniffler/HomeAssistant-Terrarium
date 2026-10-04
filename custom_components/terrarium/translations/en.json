@@ -8,7 +8,8 @@
           "name": "Name",
           "species": "Species profile",
           "temperature_sensors": "Temperature sensors",
-          "humidity_sensors": "Humidity sensors"
+          "humidity_sensors": "Humidity sensors",
+          "misting_switch": "Misting switch (optional, turning on = misted)"
         }
       }
     },
@@ -24,7 +25,8 @@
         "data": {
           "species": "Species profile",
           "temperature_sensors": "Temperature sensors",
-          "humidity_sensors": "Humidity sensors"
+          "humidity_sensors": "Humidity sensors",
+          "misting_switch": "Misting switch (optional, turning on = misted)"
         }
       }
     }

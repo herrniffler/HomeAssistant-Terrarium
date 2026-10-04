@@ -28,6 +28,7 @@ from homeassistant.util import slugify
 
 from .const import (
     CONF_HUMIDITY_SENSORS,
+    CONF_MISTING_SWITCH,
     CONF_SPECIES,
     CONF_TEMPERATURE_SENSORS,
     DOMAIN,
@@ -62,6 +63,9 @@ def _sensor_fields(species: dict[str, dict[str, Any]]) -> dict[Any, Any]:
                 device_class=SensorDeviceClass.HUMIDITY,
                 multiple=True,
             )
+        ),
+        vol.Optional(CONF_MISTING_SWITCH): EntitySelector(
+            EntitySelectorConfig(domain=Platform.SWITCH)
         ),
     }
 

@@ -7,6 +7,7 @@ DOMAIN = "terrarium"
 CONF_SPECIES = "species"
 CONF_TEMPERATURE_SENSORS = "temperature_sensors"
 CONF_HUMIDITY_SENSORS = "humidity_sensors"
+CONF_MISTING_SWITCH = "misting_switch"
 
 SPECIES_CUSTOM = "custom"
 USER_SPECIES_FILE = "terrarium_species.json"

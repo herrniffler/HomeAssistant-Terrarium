@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -20,6 +20,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_HUMIDITY_SENSORS,
+    CONF_MISTING_SWITCH,
     CONF_TEMPERATURE_SENSORS,
     DOMAIN,
     EVENT_KEYS,
@@ -56,6 +57,7 @@ class TerrariumController:
             config.get(CONF_TEMPERATURE_SENSORS, [])
         )
         self.humidity_sensors: list[str] = list(config.get(CONF_HUMIDITY_SENSORS, []))
+        self.misting_switch: str | None = config.get(CONF_MISTING_SWITCH)
         self.signal = f"{DOMAIN}_update_{entry.entry_id}"
         self.setpoints: dict[str, float] = {}
         self.events: dict[str, datetime | None] = dict.fromkeys(EVENT_KEYS)
@@ -100,6 +102,12 @@ class TerrariumController:
             self.entry.async_on_unload(
                 async_track_state_change_event(
                     self.hass, sensors, self._handle_source_change
+                )
+            )
+        if self.misting_switch:
+            self.entry.async_on_unload(
+                async_track_state_change_event(
+                    self.hass, [self.misting_switch], self._handle_misting_change
                 )
             )
         self.entry.async_on_unload(
@@ -187,6 +195,14 @@ class TerrariumController:
     @callback
     def _handle_source_change(self, event: Event[EventStateChangedData]) -> None:
         async_dispatcher_send(self.hass, self.signal)
+
+    @callback
+    def _handle_misting_change(self, event: Event[EventStateChangedData]) -> None:
+        """Stamp "last misted" when the misting switch turns on."""
+        old, new = event.data["old_state"], event.data["new_state"]
+        # Only a real off -> on switch counts, not startup / reconnect noise.
+        if old is not None and old.state == STATE_OFF and new and new.state == STATE_ON:
+            self.async_set_event("last_misted", dt_util.utcnow())
 
     @callback
     def _handle_tick(self, now: datetime) -> None:
