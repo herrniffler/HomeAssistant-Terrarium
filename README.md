@@ -29,6 +29,7 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 
 **Tag und Nacht**
 - **Licht: an / Licht: aus** (`time`): dazwischen ist Tag, sonst Nacht. Der Status prüft gegen die Sollwerte der aktuellen Phase. Sensor **Tag** zeigt die Phase.
+- **Übergang: Dauer** (Standard 2 Stunden, 0 = aus): Ein Terrarium kühlt abends langsam ab und heizt morgens langsam auf. Deshalb springen die Grenzen nach Licht an/aus nicht, sondern laufen über diese Zeit linear vom alten zum neuen Wert (z. B. fällt das Temperatur-Maximum am Abend vom Tages- auf das Nacht-Maximum). Das Attribut `transition` am Status zeigt den Fortschritt (0 bis 1).
 - Die Lichtzeiten können von einer eigenen Automation gesetzt werden (`time.set_value`), z. B. aus Sonnenstand oder Strompreis.
 
 **Gradient (nur mit Sensoren für die kalte Seite)**

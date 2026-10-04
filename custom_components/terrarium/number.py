@@ -71,6 +71,14 @@ DESCRIPTIONS = (
         key="humidity_max_night", translation_key="humidity_max_night",
         entity_category=EntityCategory.CONFIG, **_HUM,
     ),
+    # 0 = limits switch abruptly at light on/off
+    NumberEntityDescription(
+        key="transition_hours", translation_key="transition_hours",
+        entity_category=EntityCategory.CONFIG,
+        device_class=NumberDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.HOURS,
+        native_min_value=0, native_max_value=8, native_step=0.5,
+    ),
     # 0 = cooling disabled
     NumberEntityDescription(
         key="cooling_threshold", translation_key="cooling_threshold",

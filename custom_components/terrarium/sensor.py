@@ -138,6 +138,7 @@ class StatusSensor(TerrariumEntity, SensorEntity):
         return {
             "problems": self.controller.problems,
             "phase": "day" if self.controller.is_day else "night",
+            "transition": round(self.controller.phase_progress, 2),
             "species": self.controller.profile.get("name"),
         }
 

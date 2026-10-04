@@ -236,29 +236,51 @@ class TerrariumController:
             return on <= now < off
         return now >= on or now < off
 
-    def active_setpoint(self, key: str) -> float:
-        """Setpoint for the current phase (day value or its night counterpart)."""
-        return self.setpoints[key if self.is_day else f"{key}_night"]
+    @property
+    def phase_progress(self) -> float:
+        """How far the transition after the last day/night switch has progressed (0..1).
+
+        A terrarium cools down / warms up slowly, so the limits glide from the old
+        phase's value to the new one over `transition_hours` instead of jumping.
+        """
+        hours = self.setpoints["transition_hours"]
+        on, off = self.light_times["light_on"], self.light_times["light_off"]
+        if hours <= 0 or on == off:
+            return 1.0
+        start = on if self.is_day else off
+        now = dt_util.now()
+        seconds = lambda t: t.hour * 3600 + t.minute * 60 + t.second
+        elapsed = (seconds(now) - seconds(start)) % 86400
+        return min(1.0, elapsed / (hours * 3600))
+
+    def _limit(self, day_value: float, night_value: float) -> float:
+        """Limit for now: by day it rises from the night value to the day value, in the
+        evening it falls from the day value to the night value."""
+        start, end = (night_value, day_value) if self.is_day else (day_value, night_value)
+        return start + (end - start) * self.phase_progress
 
     @property
     def problems(self) -> list[str]:
         """Active problems, most severe first."""
+        sp = self.setpoints
         result: list[str] = []
         temps = self._readings(self.temperature_sensors)
         cold = self._readings(self.cold_sensors)
+        max_night, min_night = sp["temp_max_night"], sp["temp_min_night"]
         if self.is_day:
             # By day temp_* is the warm side and cold_temp_* the cold side
             if temps:
-                if max(temps) > self.setpoints["temp_max"]:
+                if max(temps) > self._limit(sp["temp_max"], max_night):
                     result.append(STATUS_TOO_HOT)
-                if min(temps) < self.setpoints["temp_min"]:
+                if min(temps) < self._limit(sp["temp_min"], min_night):
                     result.append(STATUS_TOO_COLD)
             if cold:
-                if max(cold) > self.setpoints["cold_temp_max"]:
+                if max(cold) > self._limit(sp["cold_temp_max"], max_night):
                     result.append(STATUS_COLD_SIDE_TOO_HOT)
-                if min(cold) < self.setpoints["cold_temp_min"]:
+                if min(cold) < self._limit(sp["cold_temp_min"], min_night):
                     result.append(STATUS_COLD_SIDE_TOO_COLD)
-            gradient_min = self.setpoints["gradient_min"]
+            # The gradient builds up after the lights are on
+            gradient_min = sp["gradient_min"] * self.phase_progress
             if temps and cold and gradient_min > 0:
                 if sum(temps) / len(temps) - sum(cold) / len(cold) < gradient_min:
                     result.append(STATUS_NO_GRADIENT)
@@ -266,18 +288,18 @@ class TerrariumController:
             # At night the sides flatten out: all sensors share the night range
             night = [*temps, *cold]
             if night:
-                if max(night) > self.setpoints["temp_max_night"]:
+                if max(night) > self._limit(sp["temp_max"], max_night):
                     result.append(STATUS_TOO_HOT)
-                if min(night) < self.setpoints["temp_min_night"]:
+                if min(night) < self._limit(sp["temp_min"], min_night):
                     result.append(STATUS_TOO_COLD)
         hums = self._readings(self.humidity_sensors)
         if hums:
             # Mean, not extremes: humidity naturally differs a lot between the top and
             # the (wet) bottom of a terrarium, which should not count as a problem
             mean = sum(hums) / len(hums)
-            if mean < self.active_setpoint("humidity_min"):
+            if mean < self._limit(sp["humidity_min"], sp["humidity_min_night"]):
                 result.append(STATUS_TOO_DRY)
-            if mean > self.active_setpoint("humidity_max"):
+            if mean > self._limit(sp["humidity_max"], sp["humidity_max_night"]):
                 result.append(STATUS_TOO_HUMID)
         return result
 
@@ -535,6 +557,9 @@ class TerrariumController:
             async_dispatcher_send(self.hass, self.signal)
             if phase_changed:
                 self._schedule_light_sync()
+        elif self.phase_progress < 1.0:
+            # The limits are still gliding towards the new phase
+            async_dispatcher_send(self.hass, self.signal)
 
     def _data_to_save(self) -> dict[str, Any]:
         return {

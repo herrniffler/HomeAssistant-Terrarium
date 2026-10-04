@@ -133,6 +133,9 @@
       "humidity_max_night": {
         "name": "Luftfeuchte max (Nacht)"
       },
+      "transition_hours": {
+        "name": "Übergang: Dauer"
+      },
       "cold_temp_min": {
         "name": "Temperatur kalt min (Tag)"
       },

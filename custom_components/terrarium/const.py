@@ -32,6 +32,8 @@ SETPOINT_KEYS = (
     "temp_max_night",
     "humidity_min_night",
     "humidity_max_night",
+    # Hours after light on/off over which the limits glide from the old phase to the new
+    "transition_hours",
     # Cooling: lights go off above the threshold (0 = disabled) until it has cooled
     "cooling_threshold",
     "cooling_spread",
@@ -49,6 +51,7 @@ SETPOINT_KEYS = (
 # Cold-side setpoints start out equal to the warm-side value they mirror
 COLD_DEFAULT_FROM = {"cold_temp_min": "temp_min", "cold_temp_max": "temp_max"}
 GENERIC_DEFAULTS: dict[str, float] = {
+    "transition_hours": 2.0,  # 0 = limits switch abruptly
     "gradient_min": 0.0,  # min. warm-cold difference, 0 = not checked
     "misting_duration": 30.0,  # seconds
     "misting_interval": 60.0,  # minutes between two misting runs
