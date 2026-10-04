@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add terrarium",
+        "description": "Temperature/humidity sensors are optional. With several sensors the coldest and warmest reading are checked against the range (useful for gradients).",
+        "data": {
+          "name": "Name",
+          "species": "Species profile",
+          "temperature_sensors": "Temperature sensors",
+          "humidity_sensors": "Humidity sensors"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "A terrarium with this name already exists."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Terrarium settings",
+        "description": "Changing the species profile resets the target values to that profile's defaults.",
+        "data": {
+          "species": "Species profile",
+          "temperature_sensors": "Temperature sensors",
+          "humidity_sensors": "Humidity sensors"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "ok": "OK",
+          "too_hot": "Too hot",
+          "too_cold": "Too cold",
+          "too_dry": "Too dry",
+          "too_humid": "Too humid",
+          "no_data": "No data"
+        }
+      },
+      "next_feeding": {
+        "name": "Next feeding"
+      }
+    },
+    "binary_sensor": {
+      "out_of_range": {
+        "name": "Out of range"
+      },
+      "feeding_due": {
+        "name": "Feeding due"
+      }
+    },
+    "number": {
+      "temp_min": {
+        "name": "Minimum temperature"
+      },
+      "temp_max": {
+        "name": "Maximum temperature"
+      },
+      "humidity_min": {
+        "name": "Minimum humidity"
+      },
+      "humidity_max": {
+        "name": "Maximum humidity"
+      },
+      "feeding_interval": {
+        "name": "Feeding interval"
+      }
+    },
+    "datetime": {
+      "last_fed": {
+        "name": "Last fed"
+      },
+      "last_shed": {
+        "name": "Last shed"
+      },
+      "last_misted": {
+        "name": "Last misted"
+      }
+    },
+    "button": {
+      "fed": {
+        "name": "Mark as fed"
+      },
+      "shed": {
+        "name": "Mark as shed"
+      },
+      "misted": {
+        "name": "Mark as misted"
+      }
+    }
+  }
+}

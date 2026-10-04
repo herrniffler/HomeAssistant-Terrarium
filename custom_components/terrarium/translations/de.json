@@ -1,0 +1,97 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Terrarium hinzufügen",
+        "description": "Sensoren sind optional. Bei mehreren Sensoren werden der kälteste und der wärmste Wert gegen den Bereich geprüft (sinnvoll bei Gradienten).",
+        "data": {
+          "name": "Name",
+          "species": "Artprofil",
+          "temperature_sensors": "Temperatursensoren",
+          "humidity_sensors": "Luftfeuchtesensoren"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Ein Terrarium mit diesem Namen existiert bereits."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Terrarium-Einstellungen",
+        "description": "Ein Wechsel des Artprofils setzt die Sollwerte auf die Standardwerte des Profils zurück.",
+        "data": {
+          "species": "Artprofil",
+          "temperature_sensors": "Temperatursensoren",
+          "humidity_sensors": "Luftfeuchtesensoren"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "ok": "OK",
+          "too_hot": "Zu warm",
+          "too_cold": "Zu kalt",
+          "too_dry": "Zu trocken",
+          "too_humid": "Zu feucht",
+          "no_data": "Keine Daten"
+        }
+      },
+      "next_feeding": {
+        "name": "Nächste Fütterung"
+      }
+    },
+    "binary_sensor": {
+      "out_of_range": {
+        "name": "Außerhalb Sollbereich"
+      },
+      "feeding_due": {
+        "name": "Fütterung fällig"
+      }
+    },
+    "number": {
+      "temp_min": {
+        "name": "Temperatur min"
+      },
+      "temp_max": {
+        "name": "Temperatur max"
+      },
+      "humidity_min": {
+        "name": "Luftfeuchte min"
+      },
+      "humidity_max": {
+        "name": "Luftfeuchte max"
+      },
+      "feeding_interval": {
+        "name": "Fütterungsintervall"
+      }
+    },
+    "datetime": {
+      "last_fed": {
+        "name": "Zuletzt gefüttert"
+      },
+      "last_shed": {
+        "name": "Zuletzt gehäutet"
+      },
+      "last_misted": {
+        "name": "Zuletzt besprüht"
+      }
+    },
+    "button": {
+      "fed": {
+        "name": "Gefüttert"
+      },
+      "shed": {
+        "name": "Gehäutet"
+      },
+      "misted": {
+        "name": "Besprüht"
+      }
+    }
+  }
+}
