@@ -230,24 +230,32 @@ class TerrariumController:
     def problems(self) -> list[str]:
         """Active problems, most severe first."""
         result: list[str] = []
-        # With cold-side sensors temp_* is the warm side, otherwise the only range
         temps = self._readings(self.temperature_sensors)
-        if temps:
-            if max(temps) > self.active_setpoint("temp_max"):
-                result.append(STATUS_TOO_HOT)
-            if min(temps) < self.active_setpoint("temp_min"):
-                result.append(STATUS_TOO_COLD)
         cold = self._readings(self.cold_sensors)
-        if cold:
-            if max(cold) > self.active_setpoint("cold_temp_max"):
-                result.append(STATUS_COLD_SIDE_TOO_HOT)
-            if min(cold) < self.active_setpoint("cold_temp_min"):
-                result.append(STATUS_COLD_SIDE_TOO_COLD)
-        gradient_min = self.setpoints["gradient_min"]
-        # Only by day: with the lights off the gradient is expected to flatten
-        if temps and cold and gradient_min > 0 and self.is_day:
-            if sum(temps) / len(temps) - sum(cold) / len(cold) < gradient_min:
-                result.append(STATUS_NO_GRADIENT)
+        if self.is_day:
+            # By day temp_* is the warm side and cold_temp_* the cold side
+            if temps:
+                if max(temps) > self.setpoints["temp_max"]:
+                    result.append(STATUS_TOO_HOT)
+                if min(temps) < self.setpoints["temp_min"]:
+                    result.append(STATUS_TOO_COLD)
+            if cold:
+                if max(cold) > self.setpoints["cold_temp_max"]:
+                    result.append(STATUS_COLD_SIDE_TOO_HOT)
+                if min(cold) < self.setpoints["cold_temp_min"]:
+                    result.append(STATUS_COLD_SIDE_TOO_COLD)
+            gradient_min = self.setpoints["gradient_min"]
+            if temps and cold and gradient_min > 0:
+                if sum(temps) / len(temps) - sum(cold) / len(cold) < gradient_min:
+                    result.append(STATUS_NO_GRADIENT)
+        else:
+            # At night the sides flatten out: all sensors share the night range
+            night = [*temps, *cold]
+            if night:
+                if max(night) > self.setpoints["temp_max_night"]:
+                    result.append(STATUS_TOO_HOT)
+                if min(night) < self.setpoints["temp_min_night"]:
+                    result.append(STATUS_TOO_COLD)
         hums = self._readings(self.humidity_sensors)
         if hums:
             if min(hums) < self.active_setpoint("humidity_min"):

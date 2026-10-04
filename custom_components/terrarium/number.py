@@ -92,14 +92,6 @@ DESCRIPTIONS = (
         entity_category=EntityCategory.CONFIG, **_TEMP,
     ),
     NumberEntityDescription(
-        key="cold_temp_min_night", translation_key="cold_temp_min_night",
-        entity_category=EntityCategory.CONFIG, **_TEMP,
-    ),
-    NumberEntityDescription(
-        key="cold_temp_max_night", translation_key="cold_temp_max_night",
-        entity_category=EntityCategory.CONFIG, **_TEMP,
-    ),
-    NumberEntityDescription(
         key="gradient_min", translation_key="gradient_min",
         entity_category=EntityCategory.CONFIG,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,

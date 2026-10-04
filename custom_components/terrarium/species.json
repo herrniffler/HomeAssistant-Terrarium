@@ -12,8 +12,6 @@
     "gradient_min": 3,
     "temp_min_night": 20,
     "temp_max_night": 26,
-    "cold_temp_min_night": 20,
-    "cold_temp_max_night": 26,
     "humidity_min_night": 60,
     "humidity_max_night": 85,
     "verified": false
@@ -31,8 +29,6 @@
     "gradient_min": 3,
     "temp_min_night": 18,
     "temp_max_night": 24,
-    "cold_temp_min_night": 18,
-    "cold_temp_max_night": 24,
     "humidity_min_night": 55,
     "humidity_max_night": 85,
     "verified": false
@@ -49,8 +45,6 @@
     "cold_temp_max": 27,
     "temp_min_night": 18,
     "temp_max_night": 24,
-    "cold_temp_min_night": 18,
-    "cold_temp_max_night": 24,
     "humidity_min_night": 55,
     "humidity_max_night": 80,
     "verified": false
@@ -67,8 +61,6 @@
     "cold_temp_max": 27,
     "temp_min_night": 17,
     "temp_max_night": 25,
-    "cold_temp_min_night": 17,
-    "cold_temp_max_night": 25,
     "verified": false
   },
   "eresus_ruficapillus": {

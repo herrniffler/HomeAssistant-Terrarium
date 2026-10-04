@@ -137,12 +137,6 @@
       "cold_temp_max": {
         "name": "Cold side maximum temperature (day)"
       },
-      "cold_temp_min_night": {
-        "name": "Cold side minimum temperature (night)"
-      },
-      "cold_temp_max_night": {
-        "name": "Cold side maximum temperature (night)"
-      },
       "gradient_min": {
         "name": "Minimum warm/cold gradient (0 = off)"
       },

@@ -39,12 +39,10 @@ SETPOINT_KEYS = (
     "misting_below",
     "misting_duration",
     "misting_interval",
-    # Cold side of a gradient (needs cold-side sensors); the temp_* values above then
-    # apply to the warm side. Defaults to the warm-side values.
+    # Cold side of a gradient (needs cold-side sensors); by day the temp_* values above
+    # then apply to the warm side. At night all sensors share the night range.
     "cold_temp_min",
     "cold_temp_max",
-    "cold_temp_min_night",
-    "cold_temp_max_night",
     "gradient_min",
 )
 # Cold-side setpoints start out equal to the warm-side value they mirror
@@ -79,13 +77,7 @@ COOLING_TIMEOUT = timedelta(hours=4)
 # Setpoints that only make sense with a misting switch
 MISTING_KEYS = ("misting_below", "misting_duration", "misting_interval")
 # Setpoints that only make sense with cold-side sensors
-COLD_SIDE_KEYS = (
-    "cold_temp_min",
-    "cold_temp_max",
-    "cold_temp_min_night",
-    "cold_temp_max_night",
-    "gradient_min",
-)
+COLD_SIDE_KEYS = ("cold_temp_min", "cold_temp_max", "gradient_min")
 
 # Logged care events (exposed as datetime entities / buttons)
 EVENT_KEYS = ("last_fed", "last_shed", "last_misted")
