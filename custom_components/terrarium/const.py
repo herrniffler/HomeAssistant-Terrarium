@@ -9,6 +9,7 @@ EVENT_TERRARIUM = f"{DOMAIN}_event"
 
 CONF_SPECIES = "species"
 CONF_TEMPERATURE_SENSORS = "temperature_sensors"
+CONF_COLD_TEMPERATURE_SENSORS = "cold_temperature_sensors"
 CONF_HUMIDITY_SENSORS = "humidity_sensors"
 CONF_MISTING_SWITCH = "misting_switch"
 CONF_LIGHT_SWITCHES = "light_switches"
@@ -38,8 +39,18 @@ SETPOINT_KEYS = (
     "misting_below",
     "misting_duration",
     "misting_interval",
+    # Cold side of a gradient (needs cold-side sensors); the temp_* values above then
+    # apply to the warm side. Defaults to the warm-side values.
+    "cold_temp_min",
+    "cold_temp_max",
+    "cold_temp_min_night",
+    "cold_temp_max_night",
+    "gradient_min",
 )
+# Cold-side setpoints start out equal to the warm-side value they mirror
+COLD_DEFAULT_FROM = {"cold_temp_min": "temp_min", "cold_temp_max": "temp_max"}
 GENERIC_DEFAULTS: dict[str, float] = {
+    "gradient_min": 0.0,  # min. warm-cold difference, 0 = not checked
     "misting_duration": 30.0,  # seconds
     "misting_interval": 60.0,  # minutes between two misting runs
     "cooling_threshold": 0.0,  # 0 = disabled
@@ -67,6 +78,14 @@ COOLING_TIMEOUT = timedelta(hours=4)
 
 # Setpoints that only make sense with a misting switch
 MISTING_KEYS = ("misting_below", "misting_duration", "misting_interval")
+# Setpoints that only make sense with cold-side sensors
+COLD_SIDE_KEYS = (
+    "cold_temp_min",
+    "cold_temp_max",
+    "cold_temp_min_night",
+    "cold_temp_max_night",
+    "gradient_min",
+)
 
 # Logged care events (exposed as datetime entities / buttons)
 EVENT_KEYS = ("last_fed", "last_shed", "last_misted")
@@ -77,10 +96,16 @@ STATUS_TOO_COLD = "too_cold"
 STATUS_TOO_DRY = "too_dry"
 STATUS_TOO_HUMID = "too_humid"
 STATUS_NO_DATA = "no_data"
+STATUS_COLD_SIDE_TOO_HOT = "cold_side_too_hot"
+STATUS_COLD_SIDE_TOO_COLD = "cold_side_too_cold"
+STATUS_NO_GRADIENT = "no_gradient"
 STATUS_OPTIONS = [
     STATUS_OK,
     STATUS_TOO_HOT,
     STATUS_TOO_COLD,
+    STATUS_COLD_SIDE_TOO_HOT,
+    STATUS_COLD_SIDE_TOO_COLD,
+    STATUS_NO_GRADIENT,
     STATUS_TOO_DRY,
     STATUS_TOO_HUMID,
     STATUS_NO_DATA,

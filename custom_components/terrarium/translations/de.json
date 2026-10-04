@@ -7,7 +7,8 @@
         "data": {
           "name": "Name",
           "species": "Artprofil",
-          "temperature_sensors": "Temperatursensoren",
+          "temperature_sensors": "Temperatursensoren (warme Seite bzw. alle)",
+          "cold_temperature_sensors": "Temperatursensoren kalte Seite (optional, für Gradient)",
           "humidity_sensors": "Luftfeuchtesensoren",
           "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)",
           "light_switches": "Licht-Schalter (optional, werden nach Lichtzeiten geschaltet)"
@@ -25,7 +26,8 @@
         "description": "Ein Wechsel des Artprofils setzt die Sollwerte auf die Standardwerte des Profils zurück.",
         "data": {
           "species": "Artprofil",
-          "temperature_sensors": "Temperatursensoren",
+          "temperature_sensors": "Temperatursensoren (warme Seite bzw. alle)",
+          "cold_temperature_sensors": "Temperatursensoren kalte Seite (optional, für Gradient)",
           "humidity_sensors": "Luftfeuchtesensoren",
           "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)",
           "light_switches": "Licht-Schalter (optional, werden nach Lichtzeiten geschaltet)"
@@ -41,6 +43,9 @@
           "ok": "OK",
           "too_hot": "Zu warm",
           "too_cold": "Zu kalt",
+          "cold_side_too_hot": "Kalte Seite zu warm",
+          "cold_side_too_cold": "Kalte Seite zu kalt",
+          "no_gradient": "Kein Gradient",
           "too_dry": "Zu trocken",
           "too_humid": "Zu feucht",
           "no_data": "Keine Daten"
@@ -51,6 +56,12 @@
       },
       "temperature": {
         "name": "Temperatur"
+      },
+      "temperature_cold": {
+        "name": "Temperatur kalte Seite"
+      },
+      "gradient": {
+        "name": "Gradient"
       },
       "humidity": {
         "name": "Luftfeuchte"
@@ -119,6 +130,21 @@
       },
       "cooling_spread": {
         "name": "Abkühlung: max. Differenz warm/kalt"
+      },
+      "cold_temp_min": {
+        "name": "Kalte Seite Temperatur min (Tag)"
+      },
+      "cold_temp_max": {
+        "name": "Kalte Seite Temperatur max (Tag)"
+      },
+      "cold_temp_min_night": {
+        "name": "Kalte Seite Temperatur min (Nacht)"
+      },
+      "cold_temp_max_night": {
+        "name": "Kalte Seite Temperatur max (Nacht)"
+      },
+      "gradient_min": {
+        "name": "Mindest-Gradient warm/kalt (0 = aus)"
       },
       "misting_below": {
         "name": "Beregnen unter"

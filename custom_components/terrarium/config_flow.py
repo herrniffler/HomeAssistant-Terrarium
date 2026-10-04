@@ -27,6 +27,7 @@ from homeassistant.helpers.selector import (
 from homeassistant.util import slugify
 
 from .const import (
+    CONF_COLD_TEMPERATURE_SENSORS,
     CONF_HUMIDITY_SENSORS,
     CONF_LIGHT_SWITCHES,
     CONF_MISTING_SWITCH,
@@ -52,6 +53,13 @@ def _sensor_fields(species: dict[str, dict[str, Any]]) -> dict[Any, Any]:
             SelectSelectorConfig(options=options, mode=SelectSelectorMode.DROPDOWN)
         ),
         vol.Optional(CONF_TEMPERATURE_SENSORS, default=[]): EntitySelector(
+            EntitySelectorConfig(
+                domain=Platform.SENSOR,
+                device_class=SensorDeviceClass.TEMPERATURE,
+                multiple=True,
+            )
+        ),
+        vol.Optional(CONF_COLD_TEMPERATURE_SENSORS, default=[]): EntitySelector(
             EntitySelectorConfig(
                 domain=Platform.SENSOR,
                 device_class=SensorDeviceClass.TEMPERATURE,

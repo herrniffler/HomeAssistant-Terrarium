@@ -7,7 +7,8 @@
         "data": {
           "name": "Name",
           "species": "Species profile",
-          "temperature_sensors": "Temperature sensors",
+          "temperature_sensors": "Temperature sensors (warm side or all)",
+          "cold_temperature_sensors": "Cold-side temperature sensors (optional, for gradient)",
           "humidity_sensors": "Humidity sensors",
           "misting_switch": "Misting switch (optional, turning on = misted)",
           "light_switches": "Light switches (optional, switched by the light times)"
@@ -25,7 +26,8 @@
         "description": "Changing the species profile resets the target values to that profile's defaults.",
         "data": {
           "species": "Species profile",
-          "temperature_sensors": "Temperature sensors",
+          "temperature_sensors": "Temperature sensors (warm side or all)",
+          "cold_temperature_sensors": "Cold-side temperature sensors (optional, for gradient)",
           "humidity_sensors": "Humidity sensors",
           "misting_switch": "Misting switch (optional, turning on = misted)",
           "light_switches": "Light switches (optional, switched by the light times)"
@@ -41,6 +43,9 @@
           "ok": "OK",
           "too_hot": "Too hot",
           "too_cold": "Too cold",
+          "cold_side_too_hot": "Cold side too hot",
+          "cold_side_too_cold": "Cold side too cold",
+          "no_gradient": "No gradient",
           "too_dry": "Too dry",
           "too_humid": "Too humid",
           "no_data": "No data"
@@ -51,6 +56,12 @@
       },
       "temperature": {
         "name": "Temperature"
+      },
+      "temperature_cold": {
+        "name": "Cold-side temperature"
+      },
+      "gradient": {
+        "name": "Gradient"
       },
       "humidity": {
         "name": "Humidity"
@@ -119,6 +130,21 @@
       },
       "cooling_spread": {
         "name": "Cool down: max. warm/cold difference"
+      },
+      "cold_temp_min": {
+        "name": "Cold side minimum temperature (day)"
+      },
+      "cold_temp_max": {
+        "name": "Cold side maximum temperature (day)"
+      },
+      "cold_temp_min_night": {
+        "name": "Cold side minimum temperature (night)"
+      },
+      "cold_temp_max_night": {
+        "name": "Cold side maximum temperature (night)"
+      },
+      "gradient_min": {
+        "name": "Minimum warm/cold gradient (0 = off)"
       },
       "misting_below": {
         "name": "Mist below"

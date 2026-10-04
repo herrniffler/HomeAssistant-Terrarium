@@ -21,6 +21,8 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    COLD_DEFAULT_FROM,
+    CONF_COLD_TEMPERATURE_SENSORS,
     CONF_HUMIDITY_SENSORS,
     CONF_LIGHT_SWITCHES,
     CONF_MISTING_SWITCH,
@@ -39,7 +41,10 @@ from .const import (
     LIGHT_TRIES,
     LIGHT_TRIES_BEFORE_PAUSE,
     SETPOINT_KEYS,
+    STATUS_COLD_SIDE_TOO_COLD,
+    STATUS_COLD_SIDE_TOO_HOT,
     STATUS_NO_DATA,
+    STATUS_NO_GRADIENT,
     STATUS_OK,
     STATUS_TOO_COLD,
     STATUS_TOO_DRY,
@@ -68,6 +73,10 @@ class TerrariumController:
         self.profile = profile
         self.temperature_sensors: list[str] = list(
             config.get(CONF_TEMPERATURE_SENSORS, [])
+        )
+        # Optional second group: with it, temperature_sensors is the warm side
+        self.cold_sensors: list[str] = list(
+            config.get(CONF_COLD_TEMPERATURE_SENSORS, [])
         )
         self.humidity_sensors: list[str] = list(config.get(CONF_HUMIDITY_SENSORS, []))
         self.misting_switch: str | None = config.get(CONF_MISTING_SWITCH)
@@ -108,6 +117,8 @@ class TerrariumController:
         for key in SETPOINT_KEYS:
             if key in self.profile:
                 defaults[key] = float(self.profile[key])
+            elif key in COLD_DEFAULT_FROM:
+                defaults[key] = defaults[COLD_DEFAULT_FROM[key]]
             elif key.endswith("_night"):
                 # Day keys come first in SETPOINT_KEYS, so they are resolved already
                 defaults[key] = defaults[key.removesuffix("_night")]
@@ -147,7 +158,11 @@ class TerrariumController:
     @callback
     def async_start(self) -> None:
         """Start listening to source sensors and the feeding timer."""
-        sensors = [*self.temperature_sensors, *self.humidity_sensors]
+        sensors = [
+            *self.temperature_sensors,
+            *self.cold_sensors,
+            *self.humidity_sensors,
+        ]
         if sensors:
             self.entry.async_on_unload(
                 async_track_state_change_event(
@@ -215,12 +230,24 @@ class TerrariumController:
     def problems(self) -> list[str]:
         """Active problems, most severe first."""
         result: list[str] = []
+        # With cold-side sensors temp_* is the warm side, otherwise the only range
         temps = self._readings(self.temperature_sensors)
         if temps:
             if max(temps) > self.active_setpoint("temp_max"):
                 result.append(STATUS_TOO_HOT)
             if min(temps) < self.active_setpoint("temp_min"):
                 result.append(STATUS_TOO_COLD)
+        cold = self._readings(self.cold_sensors)
+        if cold:
+            if max(cold) > self.active_setpoint("cold_temp_max"):
+                result.append(STATUS_COLD_SIDE_TOO_HOT)
+            if min(cold) < self.active_setpoint("cold_temp_min"):
+                result.append(STATUS_COLD_SIDE_TOO_COLD)
+        gradient_min = self.setpoints["gradient_min"]
+        # Only by day: with the lights off the gradient is expected to flatten
+        if temps and cold and gradient_min > 0 and self.is_day:
+            if sum(temps) / len(temps) - sum(cold) / len(cold) < gradient_min:
+                result.append(STATUS_NO_GRADIENT)
         hums = self._readings(self.humidity_sensors)
         if hums:
             if min(hums) < self.active_setpoint("humidity_min"):
@@ -233,6 +260,7 @@ class TerrariumController:
     def status(self) -> str:
         if not (
             self._readings(self.temperature_sensors)
+            or self._readings(self.cold_sensors)
             or self._readings(self.humidity_sensors)
         ):
             return STATUS_NO_DATA
@@ -281,8 +309,6 @@ class TerrariumController:
         self.light_automation = value
         self._changed()
         self._schedule_light_sync()
-
-    # ------------------------------------------------------------------ light
 
     # ---------------------------------------------------------------- misting
 
@@ -360,10 +386,12 @@ class TerrariumController:
         if not self.is_day or now - (self._cooling_since or now) >= COOLING_TIMEOUT:
             self._set_cooling(False)
             return
+        # Warm side must be below the threshold and close to the coldest reading overall
+        cold = self._readings(self.cold_sensors)
         recovered = (
             bool(temps)
             and max(temps) < threshold
-            and max(temps) - min(temps) < self.setpoints["cooling_spread"]
+            and max(temps) - min([*temps, *cold]) < self.setpoints["cooling_spread"]
         )
         if not recovered:
             self._recovered_since = None
@@ -380,6 +408,8 @@ class TerrariumController:
         self._changed()
         self._fire_event("cooling_started" if cooling else "cooling_ended")
         self._schedule_light_sync()
+
+    # ------------------------------------------------------------------ light
 
     @callback
     def _fire_event(self, event_type: str) -> None:

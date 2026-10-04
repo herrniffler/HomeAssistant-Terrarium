@@ -39,6 +39,18 @@ async def async_setup_entry(
                 UnitOfTemperature.CELSIUS,
             )
         )
+    if controller.cold_sensors:
+        entities.append(
+            ReadingSensor(
+                controller,
+                "temperature_cold",
+                controller.cold_sensors,
+                SensorDeviceClass.TEMPERATURE,
+                UnitOfTemperature.CELSIUS,
+            )
+        )
+        if controller.temperature_sensors:
+            entities.append(GradientSensor(controller, "gradient"))
     if controller.humidity_sensors:
         entities.append(
             ReadingSensor(
@@ -50,6 +62,22 @@ async def async_setup_entry(
             )
         )
     async_add_entities(entities)
+
+
+class GradientSensor(TerrariumEntity, SensorEntity):
+    """Warm-side mean minus cold-side mean."""
+
+    _attr_translation_key = "gradient"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+
+    @property
+    def native_value(self) -> float | None:
+        warm = self.controller.reading_summary(self.controller.temperature_sensors)
+        cold = self.controller.reading_summary(self.controller.cold_sensors)
+        if warm is None or cold is None:
+            return None
+        return round(warm["mean"] - cold["mean"], 1)
 
 
 class ReadingSensor(TerrariumEntity, SensorEntity):

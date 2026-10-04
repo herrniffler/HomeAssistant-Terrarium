@@ -12,7 +12,7 @@ from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature, U
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import MISTING_KEYS
+from .const import COLD_SIDE_KEYS, MISTING_KEYS
 from .controller import TerrariumConfigEntry, TerrariumController
 from .entity import TerrariumEntity
 
@@ -82,6 +82,29 @@ DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         native_min_value=0, native_max_value=20, native_step=0.5,
     ),
+    # Only created with cold-side sensors (see COLD_SIDE_KEYS)
+    NumberEntityDescription(
+        key="cold_temp_min", translation_key="cold_temp_min",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="cold_temp_max", translation_key="cold_temp_max",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="cold_temp_min_night", translation_key="cold_temp_min_night",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="cold_temp_max_night", translation_key="cold_temp_max_night",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="gradient_min", translation_key="gradient_min",
+        entity_category=EntityCategory.CONFIG,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        native_min_value=0, native_max_value=30, native_step=0.5,
+    ),
     # Only created when a misting switch is configured (see MISTING_KEYS)
     NumberEntityDescription(
         key="misting_below", translation_key="misting_below",
@@ -113,7 +136,8 @@ async def async_setup_entry(
     async_add_entities(
         SetpointNumber(controller, d)
         for d in DESCRIPTIONS
-        if controller.misting_switch or d.key not in MISTING_KEYS
+        if (controller.misting_switch or d.key not in MISTING_KEYS)
+        and (controller.cold_sensors or d.key not in COLD_SIDE_KEYS)
     )
 
 
