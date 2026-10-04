@@ -54,7 +54,7 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 - Schalter **Beregnung: Automatik**: Ist er an und die Luftfeuchte unter **Beregnung: unter Luftfeuchte**, wird der Beregnungs-Schalter für **Beregnung: Dauer** eingeschaltet (nur am Tag). Zwischen zwei Beregnungen liegt mindestens der **Beregnung: Mindestabstand**; auch manuelles Beregnen zählt dafür.
 
 ## Events für Automationen
-Das Event `terrarium_event` hat die Felder `terrarium` (Name), `entry_id` und `type`:
+Das Event `terrarium_event` hat die Felder `terrarium` (Name), `species` (Art), `entry_id` und `type`. Bei Abkühlung kommt `temperature` (warme Seite) dazu, bei Lichtstörung `want_on` (`true` = Einschalten ist fehlgeschlagen, `false` = Ausschalten):
 `cooling_started`, `cooling_ended`, `light_fault`, `light_fault_cleared`, `misting_started`.
 Damit lassen sich Benachrichtigungen bauen, die Integration verschickt selbst keine.
 

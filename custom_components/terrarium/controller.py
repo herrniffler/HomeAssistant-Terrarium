@@ -454,20 +454,26 @@ class TerrariumController:
         self._cooling_since = dt_util.utcnow() if cooling else None
         self._hot_since = self._recovered_since = None
         self._changed()
-        self._fire_event("cooling_started" if cooling else "cooling_ended")
+        temps = self._readings(self.temperature_sensors)
+        self._fire_event(
+            "cooling_started" if cooling else "cooling_ended",
+            temperature=round(max(temps), 1) if temps else None,
+        )
         self._schedule_light_sync()
 
     # ------------------------------------------------------------------ light
 
     @callback
-    def _fire_event(self, event_type: str) -> None:
+    def _fire_event(self, event_type: str, **extra: Any) -> None:
         """Fire a bus event that automations can use for notifications."""
         self.hass.bus.async_fire(
             EVENT_TERRARIUM,
             {
                 "entry_id": self.entry.entry_id,
                 "terrarium": self.entry.title,
+                "species": self.profile.get("name"),
                 "type": event_type,
+                **extra,
             },
         )
 
@@ -511,15 +517,18 @@ class TerrariumController:
                 blocking=False,
             )
             await asyncio.sleep(LIGHT_RETRY_DELAY)
-        self._set_light_fault(not self._lights_match(want_on))
+        self._set_light_fault(not self._lights_match(want_on), want_on)
 
     @callback
-    def _set_light_fault(self, fault: bool) -> None:
+    def _set_light_fault(self, fault: bool, want_on: bool | None = None) -> None:
         if fault == self.light_fault:
             return
         self.light_fault = fault
         async_dispatcher_send(self.hass, self.signal)
-        self._fire_event("light_fault" if fault else "light_fault_cleared")
+        # want_on tells whether switching the lights on or off is what failed
+        self._fire_event(
+            "light_fault" if fault else "light_fault_cleared", want_on=want_on
+        )
 
     @callback
     def _changed(self) -> None:
