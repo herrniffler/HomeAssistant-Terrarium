@@ -26,6 +26,7 @@ async def async_setup_entry(
     ]
     if controller.light_switches:
         entities.append(LightFault(controller, "light_fault"))
+        entities.append(Cooling(controller, "cooling"))
     async_add_entities(entities)
 
 
@@ -55,6 +56,16 @@ class LightFault(TerrariumEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         return self.controller.light_fault
+
+
+class Cooling(TerrariumEntity, BinarySensorEntity):
+    """On while the lights are held off because the terrarium got too hot."""
+
+    _attr_translation_key = "cooling"
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.cooling
 
 
 class DayPhase(TerrariumEntity, BinarySensorEntity):

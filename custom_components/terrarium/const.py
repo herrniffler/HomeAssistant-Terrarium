@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 DOMAIN = "terrarium"
 EVENT_TERRARIUM = f"{DOMAIN}_event"
 
@@ -28,8 +30,13 @@ SETPOINT_KEYS = (
     "temp_max_night",
     "humidity_min_night",
     "humidity_max_night",
+    # Cooling: lights go off above the threshold (0 = disabled) until it has cooled
+    "cooling_threshold",
+    "cooling_spread",
 )
 GENERIC_DEFAULTS: dict[str, float] = {
+    "cooling_threshold": 0.0,  # 0 = disabled
+    "cooling_spread": 2.0,  # max. difference warmest/coldest sensor to resume
     "temp_min": 18.0,
     "temp_max": 32.0,
     "humidity_min": 40.0,
@@ -46,6 +53,10 @@ LIGHT_TRIES = 6
 LIGHT_TRIES_BEFORE_PAUSE = 3
 LIGHT_RETRY_DELAY = 5  # seconds
 LIGHT_RETRY_PAUSE = 12 * 60  # seconds
+
+COOLING_START_DELAY = timedelta(minutes=5)  # must stay hot this long
+COOLING_RECOVER_DELAY = timedelta(minutes=10)  # must stay recovered this long
+COOLING_TIMEOUT = timedelta(hours=4)
 
 # Logged care events (exposed as datetime entities / buttons)
 EVENT_KEYS = ("last_fed", "last_shed", "last_misted")

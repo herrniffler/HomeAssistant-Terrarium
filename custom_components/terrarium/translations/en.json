@@ -68,6 +68,9 @@
       },
       "light_fault": {
         "name": "Light fault"
+      },
+      "cooling": {
+        "name": "Cooling down"
       }
     },
     "switch": {
@@ -107,6 +110,12 @@
       },
       "humidity_max_night": {
         "name": "Maximum humidity (night)"
+      },
+      "cooling_threshold": {
+        "name": "Cool down above (0 = off)"
+      },
+      "cooling_spread": {
+        "name": "Cool down: max. warm/cold difference"
       },
       "feeding_interval": {
         "name": "Feeding interval"

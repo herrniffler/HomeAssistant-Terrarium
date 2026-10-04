@@ -68,6 +68,9 @@
       },
       "light_fault": {
         "name": "Lichtstörung"
+      },
+      "cooling": {
+        "name": "Kühlt ab"
       }
     },
     "switch": {
@@ -107,6 +110,12 @@
       },
       "humidity_max_night": {
         "name": "Luftfeuchte max (Nacht)"
+      },
+      "cooling_threshold": {
+        "name": "Abkühlung ab (0 = aus)"
+      },
+      "cooling_spread": {
+        "name": "Abkühlung: max. Differenz warm/kalt"
       },
       "feeding_interval": {
         "name": "Fütterungsintervall"

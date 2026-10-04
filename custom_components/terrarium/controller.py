@@ -25,6 +25,9 @@ from .const import (
     CONF_LIGHT_SWITCHES,
     CONF_MISTING_SWITCH,
     CONF_TEMPERATURE_SENSORS,
+    COOLING_RECOVER_DELAY,
+    COOLING_START_DELAY,
+    COOLING_TIMEOUT,
     DEFAULT_LIGHT_TIMES,
     DOMAIN,
     EVENT_KEYS,
@@ -72,6 +75,10 @@ class TerrariumController:
         self.light_automation = True
         self.light_fault = False
         self._light_task: asyncio.Task[None] | None = None
+        self.cooling = False
+        self._cooling_since: datetime | None = None
+        self._hot_since: datetime | None = None
+        self._recovered_since: datetime | None = None
         self.signal = f"{DOMAIN}_update_{entry.entry_id}"
         self.setpoints: dict[str, float] = {}
         self.events: dict[str, datetime | None] = dict.fromkeys(EVENT_KEYS)
@@ -114,6 +121,13 @@ class TerrariumController:
             )
 
         self.light_automation = bool(stored.get("light_automation", True))
+
+        # Survives restarts, so a running cooling phase is resumed
+        self.cooling = bool(stored.get("cooling", False))
+        raw = stored.get("cooling_since")
+        self._cooling_since = dt_util.parse_datetime(raw) if raw else None
+        if self.cooling and self._cooling_since is None:
+            self._cooling_since = dt_util.utcnow()
 
         for key in EVENT_KEYS:
             raw = stored.get("events", {}).get(key)
@@ -256,6 +270,56 @@ class TerrariumController:
 
     # ------------------------------------------------------------------ light
 
+    # ---------------------------------------------------------------- cooling
+
+    @callback
+    def _evaluate_cooling(self) -> None:
+        """Start/stop the cooling phase: lights stay off while the terrarium is too hot."""
+        threshold = self.setpoints["cooling_threshold"]
+        enabled = bool(self.light_switches) and self.light_automation and threshold > 0
+        now = dt_util.utcnow()
+        temps = self._readings(self.temperature_sensors)
+
+        if not enabled:
+            self._hot_since = self._recovered_since = None
+            if self.cooling:
+                self._set_cooling(False)
+            return
+
+        if not self.cooling:
+            if self.is_day and temps and max(temps) > threshold:
+                self._hot_since = self._hot_since or now
+                if now - self._hot_since >= COOLING_START_DELAY:
+                    self._set_cooling(True)
+            else:
+                self._hot_since = None
+            return
+
+        # The day ending or the timeout also ends cooling
+        if not self.is_day or now - (self._cooling_since or now) >= COOLING_TIMEOUT:
+            self._set_cooling(False)
+            return
+        recovered = (
+            bool(temps)
+            and max(temps) < threshold
+            and max(temps) - min(temps) < self.setpoints["cooling_spread"]
+        )
+        if not recovered:
+            self._recovered_since = None
+            return
+        self._recovered_since = self._recovered_since or now
+        if now - self._recovered_since >= COOLING_RECOVER_DELAY:
+            self._set_cooling(False)
+
+    @callback
+    def _set_cooling(self, cooling: bool) -> None:
+        self.cooling = cooling
+        self._cooling_since = dt_util.utcnow() if cooling else None
+        self._hot_since = self._recovered_since = None
+        self._changed()
+        self._fire_event("cooling_started" if cooling else "cooling_ended")
+        self._schedule_light_sync()
+
     @callback
     def _fire_event(self, event_type: str) -> None:
         """Fire a bus event that automations can use for notifications."""
@@ -295,7 +359,7 @@ class TerrariumController:
 
     async def _async_apply_light(self) -> None:
         """Switch the lights to the wanted state and verify, retrying on failure."""
-        want_on = self.is_day
+        want_on = self.is_day and not self.cooling
         for attempt in range(LIGHT_TRIES):
             if attempt == LIGHT_TRIES_BEFORE_PAUSE:
                 await asyncio.sleep(LIGHT_RETRY_PAUSE)
@@ -327,6 +391,7 @@ class TerrariumController:
 
     @callback
     def _handle_source_change(self, event: Event[EventStateChangedData]) -> None:
+        self._evaluate_cooling()
         async_dispatcher_send(self.hass, self.signal)
 
     @callback
@@ -339,6 +404,7 @@ class TerrariumController:
 
     @callback
     def _handle_tick(self, now: datetime) -> None:
+        self._evaluate_cooling()
         due, day = self.feeding_due, self.is_day
         if due != self._last_due or day != self._last_day:
             phase_changed = day != self._last_day
@@ -353,6 +419,10 @@ class TerrariumController:
             "setpoints": self.setpoints,
             "light_times": {k: v.isoformat() for k, v in self.light_times.items()},
             "light_automation": self.light_automation,
+            "cooling": self.cooling,
+            "cooling_since": (
+                self._cooling_since.isoformat() if self._cooling_since else None
+            ),
             "events": {
                 k: (v.isoformat() if v else None) for k, v in self.events.items()
             },

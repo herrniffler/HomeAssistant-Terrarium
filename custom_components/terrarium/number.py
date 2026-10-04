@@ -70,6 +70,17 @@ DESCRIPTIONS = (
         key="humidity_max_night", translation_key="humidity_max_night",
         entity_category=EntityCategory.CONFIG, **_HUM,
     ),
+    # 0 = cooling disabled
+    NumberEntityDescription(
+        key="cooling_threshold", translation_key="cooling_threshold",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="cooling_spread", translation_key="cooling_spread",
+        entity_category=EntityCategory.CONFIG,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        native_min_value=0, native_max_value=20, native_step=0.5,
+    ),
 )
 
 
