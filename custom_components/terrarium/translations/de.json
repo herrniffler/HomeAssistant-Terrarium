@@ -9,7 +9,8 @@
           "species": "Artprofil",
           "temperature_sensors": "Temperatursensoren (warme Seite bzw. alle)",
           "cold_temperature_sensors": "Temperatursensoren kalte Seite (optional, für Gradient)",
-          "humidity_sensors": "Luftfeuchtesensoren",
+          "humidity_sensors": "Luftfeuchtesensoren (Luft, bestimmen Status und Beregnung)",
+          "bottom_humidity_sensors": "Luftfeuchtesensoren Boden/unten (optional, nur Anzeige)",
           "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)",
           "light_switches": "Licht-Schalter (optional, werden nach Lichtzeiten geschaltet)"
         }
@@ -28,7 +29,8 @@
           "species": "Artprofil",
           "temperature_sensors": "Temperatursensoren (warme Seite bzw. alle)",
           "cold_temperature_sensors": "Temperatursensoren kalte Seite (optional, für Gradient)",
-          "humidity_sensors": "Luftfeuchtesensoren",
+          "humidity_sensors": "Luftfeuchtesensoren (Luft, bestimmen Status und Beregnung)",
+          "bottom_humidity_sensors": "Luftfeuchtesensoren Boden/unten (optional, nur Anzeige)",
           "misting_switch": "Beregnungs-Schalter (optional, Einschalten = besprüht)",
           "light_switches": "Licht-Schalter (optional, werden nach Lichtzeiten geschaltet)"
         }
@@ -62,6 +64,9 @@
       },
       "humidity": {
         "name": "Luftfeuchte"
+      },
+      "humidity_bottom": {
+        "name": "Luftfeuchte Boden"
       },
       "next_feeding": {
         "name": "Fütterung: nächste"

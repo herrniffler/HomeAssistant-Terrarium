@@ -14,7 +14,7 @@ Artprofile, Sollbereiche, Pflege-Log, Lichtsteuerung und Beregnung pro Terrarium
 ## Einrichtung
 Beim Anlegen (und später unter *Konfigurieren*) wählst du ein Artprofil und optional:
 - **Temperatursensoren** (warme Seite bzw. alle) und **Temperatursensoren kalte Seite** (für Gradienten)
-- **Luftfeuchtesensoren**
+- **Luftfeuchtesensoren** (Luft) und optional **Luftfeuchtesensoren Boden/unten**: Nur die Luftsensoren bestimmen Status und Beregnung. Die Boden-Sensoren hängen oft nah am feuchten Substrat und werden nur als **Luftfeuchte Boden** angezeigt.
 - **Beregnungs-Schalter**: Einschalten stempelt "zuletzt besprüht"; Voraussetzung für die automatische Beregnung
 - **Licht-Schalter**: werden nach den Lichtzeiten geschaltet
 
@@ -25,6 +25,7 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 - **Status** (ok / zu warm / zu kalt / kalte Seite zu warm / kalte Seite zu kalt / kein Gradient / zu trocken / zu feucht / keine Daten) und **Außerhalb Sollbereich**
 - **Temperatur warm**, **Luftfeuchte** (Mittelwert der Sensoren, `min`/`max` als Attribute), mit kalter Seite zusätzlich **Temperatur kalt** und **Gradient**
 - **Sollwerte** als `number`, vorbelegt aus dem Artprofil: Temperatur und Luftfeuchte min/max für Tag und Nacht, Fütterungsintervall
+- Die Luftfeuchte wird mit dem **Mittelwert** der Luftsensoren gegen min/max geprüft. Boden-Sensoren (siehe oben) zählen dabei nicht mit.
 
 **Tag und Nacht**
 - **Licht: an / Licht: aus** (`time`): dazwischen ist Tag, sonst Nacht. Der Status prüft gegen die Sollwerte der aktuellen Phase. Sensor **Tag** zeigt die Phase.
@@ -42,7 +43,6 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 **Lichtsteuerung** (mit Licht-Schaltern)
 - Die Schalter folgen den Lichtzeiten. Nach dem Schalten wird der Zustand geprüft: 3 Versuche im Abstand von 5 s, 12 Minuten Pause, 3 weitere Versuche, danach **Licht: Störung**.
 - **Licht: Automatik** schaltet das ein oder aus.
-
 **Abkühlung** (mit Licht-Schaltern)
 - Liegt die warme Seite 5 Minuten über **Abkühlung: ab Temperatur** (0 = aus), geht das Licht aus (**Abkühlung: aktiv**).
 - Es geht wieder an, wenn die warme Seite darunter liegt und der Unterschied zur kältesten Messung kleiner als **Abkühlung: max. Differenz** ist, 10 Minuten lang. Timeout nach 4 Stunden, Tagesende beendet die Abkühlung ebenfalls. Der Zustand überlebt einen Neustart.

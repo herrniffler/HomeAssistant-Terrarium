@@ -11,6 +11,7 @@ CONF_SPECIES = "species"
 CONF_TEMPERATURE_SENSORS = "temperature_sensors"
 CONF_COLD_TEMPERATURE_SENSORS = "cold_temperature_sensors"
 CONF_HUMIDITY_SENSORS = "humidity_sensors"
+CONF_BOTTOM_HUMIDITY_SENSORS = "bottom_humidity_sensors"
 CONF_MISTING_SWITCH = "misting_switch"
 CONF_LIGHT_SWITCHES = "light_switches"
 

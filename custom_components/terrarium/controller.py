@@ -22,6 +22,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import (
     COLD_DEFAULT_FROM,
+    CONF_BOTTOM_HUMIDITY_SENSORS,
     CONF_COLD_TEMPERATURE_SENSORS,
     CONF_HUMIDITY_SENSORS,
     CONF_LIGHT_SWITCHES,
@@ -78,7 +79,12 @@ class TerrariumController:
         self.cold_sensors: list[str] = list(
             config.get(CONF_COLD_TEMPERATURE_SENSORS, [])
         )
+        # Air humidity drives status and misting; the bottom sensors (close to the wet
+        # substrate) are only shown, never judged
         self.humidity_sensors: list[str] = list(config.get(CONF_HUMIDITY_SENSORS, []))
+        self.bottom_humidity_sensors: list[str] = list(
+            config.get(CONF_BOTTOM_HUMIDITY_SENSORS, [])
+        )
         self.misting_switch: str | None = config.get(CONF_MISTING_SWITCH)
         self.light_switches: list[str] = list(config.get(CONF_LIGHT_SWITCHES, []))
         self.light_automation = True
@@ -162,6 +168,7 @@ class TerrariumController:
             *self.temperature_sensors,
             *self.cold_sensors,
             *self.humidity_sensors,
+            *self.bottom_humidity_sensors,
         ]
         if sensors:
             self.entry.async_on_unload(
@@ -258,9 +265,12 @@ class TerrariumController:
                     result.append(STATUS_TOO_COLD)
         hums = self._readings(self.humidity_sensors)
         if hums:
-            if min(hums) < self.active_setpoint("humidity_min"):
+            # Mean, not extremes: humidity naturally differs a lot between the top and
+            # the (wet) bottom of a terrarium, which should not count as a problem
+            mean = sum(hums) / len(hums)
+            if mean < self.active_setpoint("humidity_min"):
                 result.append(STATUS_TOO_DRY)
-            if max(hums) > self.active_setpoint("humidity_max"):
+            if mean > self.active_setpoint("humidity_max"):
                 result.append(STATUS_TOO_HUMID)
         return result
 
@@ -270,6 +280,7 @@ class TerrariumController:
             self._readings(self.temperature_sensors)
             or self._readings(self.cold_sensors)
             or self._readings(self.humidity_sensors)
+            or self._readings(self.bottom_humidity_sensors)
         ):
             return STATUS_NO_DATA
         problems = self.problems

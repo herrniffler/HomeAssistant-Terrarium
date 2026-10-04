@@ -9,7 +9,8 @@
           "species": "Species profile",
           "temperature_sensors": "Temperature sensors (warm side or all)",
           "cold_temperature_sensors": "Cold-side temperature sensors (optional, for gradient)",
-          "humidity_sensors": "Humidity sensors",
+          "humidity_sensors": "Humidity sensors (air, drive status and misting)",
+          "bottom_humidity_sensors": "Bottom humidity sensors (optional, display only)",
           "misting_switch": "Misting switch (optional, turning on = misted)",
           "light_switches": "Light switches (optional, switched by the light times)"
         }
@@ -28,7 +29,8 @@
           "species": "Species profile",
           "temperature_sensors": "Temperature sensors (warm side or all)",
           "cold_temperature_sensors": "Cold-side temperature sensors (optional, for gradient)",
-          "humidity_sensors": "Humidity sensors",
+          "humidity_sensors": "Humidity sensors (air, drive status and misting)",
+          "bottom_humidity_sensors": "Bottom humidity sensors (optional, display only)",
           "misting_switch": "Misting switch (optional, turning on = misted)",
           "light_switches": "Light switches (optional, switched by the light times)"
         }
@@ -62,6 +64,9 @@
       },
       "humidity": {
         "name": "Humidity"
+      },
+      "humidity_bottom": {
+        "name": "Humidity bottom"
       },
       "next_feeding": {
         "name": "Feeding: next"

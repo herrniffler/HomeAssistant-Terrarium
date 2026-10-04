@@ -51,6 +51,16 @@ async def async_setup_entry(
         )
         if controller.temperature_sensors:
             entities.append(GradientSensor(controller, "gradient"))
+    if controller.bottom_humidity_sensors:
+        entities.append(
+            ReadingSensor(
+                controller,
+                "humidity_bottom",
+                controller.bottom_humidity_sensors,
+                SensorDeviceClass.HUMIDITY,
+                PERCENTAGE,
+            )
+        )
     if controller.humidity_sensors:
         entities.append(
             ReadingSensor(
