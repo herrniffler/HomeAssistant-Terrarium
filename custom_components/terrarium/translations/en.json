@@ -76,6 +76,9 @@
     "switch": {
       "light_automation": {
         "name": "Light automation"
+      },
+      "auto_misting": {
+        "name": "Automatic misting"
       }
     },
     "time": {
@@ -116,6 +119,15 @@
       },
       "cooling_spread": {
         "name": "Cool down: max. warm/cold difference"
+      },
+      "misting_below": {
+        "name": "Mist below"
+      },
+      "misting_duration": {
+        "name": "Misting duration"
+      },
+      "misting_interval": {
+        "name": "Misting: minimum interval"
       },
       "feeding_interval": {
         "name": "Feeding interval"

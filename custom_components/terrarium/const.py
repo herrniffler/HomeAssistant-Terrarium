@@ -33,8 +33,15 @@ SETPOINT_KEYS = (
     # Cooling: lights go off above the threshold (0 = disabled) until it has cooled
     "cooling_threshold",
     "cooling_spread",
+    # Automatic misting (needs a misting switch): mist below this humidity (default
+    # derived from the day range), for N seconds, at most every N minutes
+    "misting_below",
+    "misting_duration",
+    "misting_interval",
 )
 GENERIC_DEFAULTS: dict[str, float] = {
+    "misting_duration": 30.0,  # seconds
+    "misting_interval": 60.0,  # minutes between two misting runs
     "cooling_threshold": 0.0,  # 0 = disabled
     "cooling_spread": 2.0,  # max. difference warmest/coldest sensor to resume
     "temp_min": 18.0,
@@ -57,6 +64,9 @@ LIGHT_RETRY_PAUSE = 12 * 60  # seconds
 COOLING_START_DELAY = timedelta(minutes=5)  # must stay hot this long
 COOLING_RECOVER_DELAY = timedelta(minutes=10)  # must stay recovered this long
 COOLING_TIMEOUT = timedelta(hours=4)
+
+# Setpoints that only make sense with a misting switch
+MISTING_KEYS = ("misting_below", "misting_duration", "misting_interval")
 
 # Logged care events (exposed as datetime entities / buttons)
 EVENT_KEYS = ("last_fed", "last_shed", "last_misted")

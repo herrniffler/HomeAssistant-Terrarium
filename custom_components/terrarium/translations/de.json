@@ -76,6 +76,9 @@
     "switch": {
       "light_automation": {
         "name": "Lichtautomatik"
+      },
+      "auto_misting": {
+        "name": "Automatische Beregnung"
       }
     },
     "time": {
@@ -116,6 +119,15 @@
       },
       "cooling_spread": {
         "name": "Abkühlung: max. Differenz warm/kalt"
+      },
+      "misting_below": {
+        "name": "Beregnen unter"
+      },
+      "misting_duration": {
+        "name": "Beregnungsdauer"
+      },
+      "misting_interval": {
+        "name": "Beregnung: Mindestabstand"
       },
       "feeding_interval": {
         "name": "Fütterungsintervall"

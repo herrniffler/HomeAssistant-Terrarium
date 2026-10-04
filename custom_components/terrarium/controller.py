@@ -73,6 +73,9 @@ class TerrariumController:
         self.misting_switch: str | None = config.get(CONF_MISTING_SWITCH)
         self.light_switches: list[str] = list(config.get(CONF_LIGHT_SWITCHES, []))
         self.light_automation = True
+        self.auto_misting = False
+        self._misting_task: asyncio.Task[None] | None = None
+        self._last_mist_start: datetime | None = None
         self.light_fault = False
         self._light_task: asyncio.Task[None] | None = None
         self.cooling = False
@@ -108,6 +111,10 @@ class TerrariumController:
             elif key.endswith("_night"):
                 # Day keys come first in SETPOINT_KEYS, so they are resolved already
                 defaults[key] = defaults[key.removesuffix("_night")]
+            elif key == "misting_below":
+                # A quarter into the day range, so misting starts before it is too dry
+                low, high = defaults["humidity_min"], defaults["humidity_max"]
+                defaults[key] = round(low + 0.25 * (high - low))
 
         saved: dict[str, Any] = {}
         if stored.get("species") == self.species_id:
@@ -121,6 +128,7 @@ class TerrariumController:
             )
 
         self.light_automation = bool(stored.get("light_automation", True))
+        self.auto_misting = bool(stored.get("auto_misting", False))
 
         # Survives restarts, so a running cooling phase is resumed
         self.cooling = bool(stored.get("cooling", False))
@@ -263,12 +271,65 @@ class TerrariumController:
         self._schedule_light_sync()
 
     @callback
+    def async_set_auto_misting(self, value: bool) -> None:
+        self.auto_misting = value
+        self._changed()
+        self._evaluate_misting()
+
+    @callback
     def async_set_light_automation(self, value: bool) -> None:
         self.light_automation = value
         self._changed()
         self._schedule_light_sync()
 
     # ------------------------------------------------------------------ light
+
+    # ---------------------------------------------------------------- misting
+
+    @callback
+    def _evaluate_misting(self) -> None:
+        """Start a misting run when it is too dry (day only, with a minimum gap)."""
+        if not (self.auto_misting and self.misting_switch and self.humidity_sensors):
+            return
+        if self._misting_task is not None and not self._misting_task.done():
+            return
+        if not self.is_day:
+            return
+        state = self.hass.states.get(self.misting_switch)
+        if state is None or state.state not in (STATE_ON, STATE_OFF):
+            return
+        summary = self.reading_summary(self.humidity_sensors)
+        if summary is None or summary["mean"] >= self.setpoints["misting_below"]:
+            return
+        now = dt_util.utcnow()
+        # Manual misting and our own attempts both count for the minimum gap
+        last = max(
+            (t for t in (self.events["last_misted"], self._last_mist_start) if t),
+            default=None,
+        )
+        gap = timedelta(minutes=self.setpoints["misting_interval"])
+        if last is not None and now - last < gap:
+            return
+        self._last_mist_start = now
+        self._misting_task = self.entry.async_create_background_task(
+            self.hass, self._async_mist(), f"{DOMAIN}_misting_{self.entry.entry_id}"
+        )
+
+    async def _async_mist(self) -> None:
+        """Switch the misting switch on for the configured duration, then off."""
+        assert self.misting_switch is not None
+        data = {"entity_id": [self.misting_switch]}
+        self._fire_event("misting_started")
+        await self.hass.services.async_call(
+            "homeassistant", "turn_on", data, blocking=False
+        )
+        try:
+            await asyncio.sleep(self.setpoints["misting_duration"])
+        finally:
+            # Also when cancelled (unload/shutdown): never leave the water running
+            await self.hass.services.async_call(
+                "homeassistant", "turn_off", data, blocking=False
+            )
 
     # ---------------------------------------------------------------- cooling
 
@@ -392,6 +453,7 @@ class TerrariumController:
     @callback
     def _handle_source_change(self, event: Event[EventStateChangedData]) -> None:
         self._evaluate_cooling()
+        self._evaluate_misting()
         async_dispatcher_send(self.hass, self.signal)
 
     @callback
@@ -405,6 +467,7 @@ class TerrariumController:
     @callback
     def _handle_tick(self, now: datetime) -> None:
         self._evaluate_cooling()
+        self._evaluate_misting()
         due, day = self.feeding_due, self.is_day
         if due != self._last_due or day != self._last_day:
             phase_changed = day != self._last_day
@@ -419,6 +482,7 @@ class TerrariumController:
             "setpoints": self.setpoints,
             "light_times": {k: v.isoformat() for k, v in self.light_times.items()},
             "light_automation": self.light_automation,
+            "auto_misting": self.auto_misting,
             "cooling": self.cooling,
             "cooling_since": (
                 self._cooling_since.isoformat() if self._cooling_since else None

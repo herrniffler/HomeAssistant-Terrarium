@@ -19,9 +19,27 @@ async def async_setup_entry(
 ) -> None:
     controller = entry.runtime_data
     entities: list[TerrariumEntity] = []
+    if controller.misting_switch:
+        entities.append(AutoMisting(controller, "auto_misting"))
     if controller.light_switches:
         entities.append(LightAutomation(controller, "light_automation"))
     async_add_entities(entities)
+
+
+class AutoMisting(TerrariumEntity, SwitchEntity):
+    """When on, the misting switch is run automatically if it is too dry (day only)."""
+
+    _attr_translation_key = "auto_misting"
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.auto_misting
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        self.controller.async_set_auto_misting(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        self.controller.async_set_auto_misting(False)
 
 
 class LightAutomation(TerrariumEntity, SwitchEntity):

@@ -12,6 +12,7 @@ from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature, U
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .const import MISTING_KEYS
 from .controller import TerrariumConfigEntry, TerrariumController
 from .entity import TerrariumEntity
 
@@ -81,6 +82,25 @@ DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         native_min_value=0, native_max_value=20, native_step=0.5,
     ),
+    # Only created when a misting switch is configured (see MISTING_KEYS)
+    NumberEntityDescription(
+        key="misting_below", translation_key="misting_below",
+        entity_category=EntityCategory.CONFIG, **_HUM,
+    ),
+    NumberEntityDescription(
+        key="misting_duration", translation_key="misting_duration",
+        entity_category=EntityCategory.CONFIG,
+        device_class=NumberDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        native_min_value=1, native_max_value=600, native_step=1,
+    ),
+    NumberEntityDescription(
+        key="misting_interval", translation_key="misting_interval",
+        entity_category=EntityCategory.CONFIG,
+        device_class=NumberDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
+        native_min_value=5, native_max_value=720, native_step=5,
+    ),
 )
 
 
@@ -90,7 +110,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     controller = entry.runtime_data
-    async_add_entities(SetpointNumber(controller, d) for d in DESCRIPTIONS)
+    async_add_entities(
+        SetpointNumber(controller, d)
+        for d in DESCRIPTIONS
+        if controller.misting_switch or d.key not in MISTING_KEYS
+    )
 
 
 class SetpointNumber(TerrariumEntity, NumberEntity):
