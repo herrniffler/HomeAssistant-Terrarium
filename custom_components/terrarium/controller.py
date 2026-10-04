@@ -182,6 +182,13 @@ class TerrariumController:
                     self.hass, [self.misting_switch], self._handle_misting_change
                 )
             )
+        if self.light_switches:
+            # Keeps the "Light" entity in sync when the switches change
+            self.entry.async_on_unload(
+                async_track_state_change_event(
+                    self.hass, self.light_switches, self._handle_light_change
+                )
+            )
         self.entry.async_on_unload(
             async_track_time_interval(self.hass, self._handle_tick, timedelta(minutes=1))
         )
@@ -503,6 +510,10 @@ class TerrariumController:
     def _handle_source_change(self, event: Event[EventStateChangedData]) -> None:
         self._evaluate_cooling()
         self._evaluate_misting()
+        async_dispatcher_send(self.hass, self.signal)
+
+    @callback
+    def _handle_light_change(self, event: Event[EventStateChangedData]) -> None:
         async_dispatcher_send(self.hass, self.signal)
 
     @callback

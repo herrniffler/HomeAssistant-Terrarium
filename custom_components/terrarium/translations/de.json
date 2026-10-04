@@ -90,6 +90,9 @@
       }
     },
     "switch": {
+      "light": {
+        "name": "Licht"
+      },
       "light_automation": {
         "name": "Licht: Automatik"
       },

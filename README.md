@@ -43,6 +43,8 @@ Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
 **Lichtsteuerung** (mit Licht-Schaltern)
 - Die Schalter folgen den Lichtzeiten. Nach dem Schalten wird der Zustand geprüft: 3 Versuche im Abstand von 5 s, 12 Minuten Pause, 3 weitere Versuche, danach **Licht: Störung**.
 - **Licht: Automatik** schaltet das ein oder aus.
+- **Licht** zeigt, ob die hinterlegten Licht-Schalter an sind (alle an = an), und schaltet sie alle zusammen. Das berührt die Automatik nicht: Der Zustand bleibt, bis der Zeitplan beim nächsten Wechsel Tag/Nacht (oder bei Abkühlung, geänderten Lichtzeiten oder Neustart) wieder eingreift. Für längeres freies Schalten die Automatik ausschalten.
+
 **Abkühlung** (mit Licht-Schaltern)
 - Liegt die warme Seite 5 Minuten über **Abkühlung: ab Temperatur** (0 = aus), geht das Licht aus (**Abkühlung: aktiv**).
 - Es geht wieder an, wenn die warme Seite darunter liegt und der Unterschied zur kältesten Messung kleiner als **Abkühlung: max. Differenz** ist, 10 Minuten lang. Timeout nach 4 Stunden, Tagesende beendet die Abkühlung ebenfalls. Der Zustand überlebt einen Neustart.
