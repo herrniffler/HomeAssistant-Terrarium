@@ -99,6 +99,7 @@ class StatusSensor(TerrariumEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         return {
             "problems": self.controller.problems,
+            "phase": "day" if self.controller.is_day else "night",
             "species": self.controller.profile.get("name"),
         }
 

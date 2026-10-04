@@ -20,7 +20,11 @@ async def async_setup_entry(
 ) -> None:
     controller = entry.runtime_data
     async_add_entities(
-        [OutOfRange(controller, "out_of_range"), FeedingDue(controller, "feeding_due")]
+        [
+            OutOfRange(controller, "out_of_range"),
+            FeedingDue(controller, "feeding_due"),
+            DayPhase(controller, "daytime"),
+        ]
     )
 
 
@@ -39,3 +43,13 @@ class FeedingDue(TerrariumEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         return self.controller.feeding_due
+
+
+class DayPhase(TerrariumEntity, BinarySensorEntity):
+    """On during the day (between light-on and light-off time), off at night."""
+
+    _attr_translation_key = "daytime"
+
+    @property
+    def is_on(self) -> bool:
+        return self.controller.is_day

@@ -21,6 +21,11 @@ SETPOINT_KEYS = (
     "humidity_min",
     "humidity_max",
     "feeding_interval",
+    # Night values; default to the day values unless the profile sets them
+    "temp_min_night",
+    "temp_max_night",
+    "humidity_min_night",
+    "humidity_max_night",
 )
 GENERIC_DEFAULTS: dict[str, float] = {
     "temp_min": 18.0,
@@ -29,6 +34,10 @@ GENERIC_DEFAULTS: dict[str, float] = {
     "humidity_max": 90.0,
     "feeding_interval": 0.0,  # 0 = disabled
 }
+
+# Daily light schedule (exposed as time entities); day = on <= now < off
+LIGHT_TIME_KEYS = ("light_on", "light_off")
+DEFAULT_LIGHT_TIMES = {"light_on": "08:00:00", "light_off": "20:00:00"}
 
 # Logged care events (exposed as datetime entities / buttons)
 EVENT_KEYS = ("last_fed", "last_shed", "last_misted")

@@ -54,6 +54,22 @@ DESCRIPTIONS = (
         native_unit_of_measurement=UnitOfTime.DAYS,
         native_min_value=0, native_max_value=60, native_step=0.5,
     ),
+    NumberEntityDescription(
+        key="temp_min_night", translation_key="temp_min_night",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="temp_max_night", translation_key="temp_max_night",
+        entity_category=EntityCategory.CONFIG, **_TEMP,
+    ),
+    NumberEntityDescription(
+        key="humidity_min_night", translation_key="humidity_min_night",
+        entity_category=EntityCategory.CONFIG, **_HUM,
+    ),
+    NumberEntityDescription(
+        key="humidity_max_night", translation_key="humidity_max_night",
+        entity_category=EntityCategory.CONFIG, **_HUM,
+    ),
 )
 
 

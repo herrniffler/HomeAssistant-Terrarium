@@ -60,20 +60,43 @@
       },
       "feeding_due": {
         "name": "Fütterung fällig"
+      },
+      "daytime": {
+        "name": "Tag"
+      }
+    },
+    "time": {
+      "light_on": {
+        "name": "Licht an"
+      },
+      "light_off": {
+        "name": "Licht aus"
       }
     },
     "number": {
       "temp_min": {
-        "name": "Temperatur min"
+        "name": "Temperatur min (Tag)"
       },
       "temp_max": {
-        "name": "Temperatur max"
+        "name": "Temperatur max (Tag)"
       },
       "humidity_min": {
-        "name": "Luftfeuchte min"
+        "name": "Luftfeuchte min (Tag)"
       },
       "humidity_max": {
-        "name": "Luftfeuchte max"
+        "name": "Luftfeuchte max (Tag)"
+      },
+      "temp_min_night": {
+        "name": "Temperatur min (Nacht)"
+      },
+      "temp_max_night": {
+        "name": "Temperatur max (Nacht)"
+      },
+      "humidity_min_night": {
+        "name": "Luftfeuchte min (Nacht)"
+      },
+      "humidity_max_night": {
+        "name": "Luftfeuchte max (Nacht)"
       },
       "feeding_interval": {
         "name": "Fütterungsintervall"

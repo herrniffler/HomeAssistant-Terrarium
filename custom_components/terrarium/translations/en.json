@@ -60,20 +60,43 @@
       },
       "feeding_due": {
         "name": "Feeding due"
+      },
+      "daytime": {
+        "name": "Daytime"
+      }
+    },
+    "time": {
+      "light_on": {
+        "name": "Light on"
+      },
+      "light_off": {
+        "name": "Light off"
       }
     },
     "number": {
       "temp_min": {
-        "name": "Minimum temperature"
+        "name": "Minimum temperature (day)"
       },
       "temp_max": {
-        "name": "Maximum temperature"
+        "name": "Maximum temperature (day)"
       },
       "humidity_min": {
-        "name": "Minimum humidity"
+        "name": "Minimum humidity (day)"
       },
       "humidity_max": {
-        "name": "Maximum humidity"
+        "name": "Maximum humidity (day)"
+      },
+      "temp_min_night": {
+        "name": "Minimum temperature (night)"
+      },
+      "temp_max_night": {
+        "name": "Maximum temperature (night)"
+      },
+      "humidity_min_night": {
+        "name": "Minimum humidity (night)"
+      },
+      "humidity_max_night": {
+        "name": "Maximum humidity (night)"
       },
       "feeding_interval": {
         "name": "Feeding interval"
