@@ -46,6 +46,12 @@
       },
       "next_feeding": {
         "name": "Next feeding"
+      },
+      "temperature": {
+        "name": "Temperature"
+      },
+      "humidity": {
+        "name": "Humidity"
       }
     },
     "binary_sensor": {

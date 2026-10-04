@@ -132,6 +132,17 @@ class TerrariumController:
                 continue
         return values
 
+    def reading_summary(self, entity_ids: list[str]) -> dict[str, float] | None:
+        """Mean/min/max over the currently available readings, or None."""
+        values = self._readings(entity_ids)
+        if not values:
+            return None
+        return {
+            "mean": round(sum(values) / len(values), 1),
+            "min": min(values),
+            "max": max(values),
+        }
+
     @property
     def problems(self) -> list[str]:
         """Active problems, most severe first."""

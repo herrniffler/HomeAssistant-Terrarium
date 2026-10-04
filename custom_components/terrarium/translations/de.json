@@ -46,6 +46,12 @@
       },
       "next_feeding": {
         "name": "Nächste Fütterung"
+      },
+      "temperature": {
+        "name": "Temperatur"
+      },
+      "humidity": {
+        "name": "Luftfeuchte"
       }
     },
     "binary_sensor": {
