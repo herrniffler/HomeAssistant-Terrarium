@@ -3,68 +3,68 @@
   <img alt="Terrarium" src="custom_components/terrarium/brand/logo@2x.png" height="64">
 </picture>
 
-# Terrarium für Home Assistant
+# Terrarium for Home Assistant
 
-Artprofile, Sollbereiche, Pflege-Log, Lichtsteuerung und Beregnung pro Terrarium (Idee: OpenPlantbook, aber für Terrarien).
+Species profiles, target ranges, care log, light control and misting for each terrarium (the idea: OpenPlantbook, but for terrariums).
 
 ## Installation
-- HACS → Custom repository (Integration) oder `custom_components/terrarium` nach `/config/custom_components/` kopieren
-- Neustart, dann *Einstellungen → Geräte & Dienste → Terrarium*
+- HACS → Custom repository (Integration), or copy `custom_components/terrarium` to `/config/custom_components/`
+- Restart, then *Settings → Devices & services → Terrarium*
 
-## Einrichtung
-Beim Anlegen (und später unter *Konfigurieren*) wählst du ein Artprofil und optional:
-- **Temperatursensoren** (warme Seite bzw. alle) und **Temperatursensoren kalte Seite** (für Gradienten)
-- **Luftfeuchtesensoren** (Luft) und optional **Luftfeuchtesensoren Boden/unten**: Nur die Luftsensoren bestimmen Status und Beregnung. Die Boden-Sensoren hängen oft nah am feuchten Substrat und werden nur als **Luftfeuchte Boden** angezeigt.
-- **Beregnungs-Schalter**: Einschalten stempelt "zuletzt besprüht"; Voraussetzung für die automatische Beregnung
-- **Licht-Schalter**: werden nach den Lichtzeiten geschaltet
+## Setup
+When adding a terrarium (and later under *Configure*) you pick a species profile and, optionally:
+- **Temperature sensors** (warm side or all) and **Cold-side temperature sensors** (for gradients)
+- **Humidity sensors** (air) and optionally **Bottom humidity sensors**: only the air sensors drive status and misting. Bottom sensors often hang close to the wet substrate and are only shown as **Humidity bottom**.
+- **Misting switch**: turning it on stamps "last misted"; required for automatic misting
+- **Light switches**: switched according to the light times
 
-Alles ist optional. Ohne Sensoren zeigt der Status "keine Daten".
+Everything is optional. Without sensors the status shows "No data".
 
-## Pro Terrarium entsteht ein Gerät mit
-**Überwachung**
-- **Status** (ok / zu warm / zu kalt / kalte Seite zu warm / kalte Seite zu kalt / kein Gradient / zu trocken / zu feucht / keine Daten) und **Außerhalb Sollbereich**
-- **Temperatur warm**, **Luftfeuchte** (Mittelwert der Sensoren, `min`/`max` als Attribute), mit kalter Seite zusätzlich **Temperatur kalt** und **Gradient**
-- **Sollwerte** als `number`, vorbelegt aus dem Artprofil: Temperatur und Luftfeuchte min/max für Tag und Nacht, Fütterungsintervall
-- Die Luftfeuchte wird mit dem **Mittelwert** der Luftsensoren gegen min/max geprüft. Boden-Sensoren (siehe oben) zählen dabei nicht mit.
+## Each terrarium becomes a device with
+**Monitoring**
+- **Status** (OK / Too hot / Too cold / Cold side too hot / Cold side too cold / No gradient / Too dry / Too humid / No data) and **Out of range**
+- **Temperature warm** and **Humidity** (mean of the sensors, `min`/`max` as attributes); with a cold side also **Temperature cold** and **Gradient**
+- **Targets** as `number` entities, pre-filled from the species profile: temperature and humidity min/max for day and night, feeding interval
+- Humidity is checked as the **mean** of the air sensors against min/max. Bottom sensors (see above) do not count.
 
-**Tag und Nacht**
-- **Licht: an / Licht: aus** (`time`): dazwischen ist Tag, sonst Nacht. Der Status prüft gegen die Sollwerte der aktuellen Phase. Sensor **Tag** zeigt die Phase.
-- **Übergang: Dauer** (Standard 2 Stunden, 0 = aus): Ein Terrarium kühlt abends langsam ab und heizt morgens langsam auf. Deshalb springen die Grenzen nach Licht an/aus nicht, sondern laufen über diese Zeit linear vom alten zum neuen Wert (z. B. fällt das Temperatur-Maximum am Abend vom Tages- auf das Nacht-Maximum). Das Attribut `transition` am Status zeigt den Fortschritt (0 bis 1).
-- Die Lichtzeiten können von einer eigenen Automation gesetzt werden (`time.set_value`), z. B. aus Sonnenstand oder Strompreis.
+**Day and night**
+- **Light: on / Light: off** (`time`): in between it is day, otherwise night. The status checks against the targets of the current phase. The **Daytime** sensor shows the phase.
+- **Transition: duration** (default 2 hours, 0 = off): a terrarium cools down slowly in the evening and warms up slowly in the morning. So the limits do not jump at light on/off but glide linearly from the old to the new value over this time (e.g. in the evening the maximum temperature falls from the day to the night maximum). The `transition` attribute on the status shows the progress (0 to 1).
+- The light times can be set by your own automation (`time.set_value`), e.g. from the sun position or the electricity price.
 
-**Gradient (nur mit Sensoren für die kalte Seite)**
-- Am Tag gilt **Temperatur warm min/max (Tag)** für die warme Seite, dazu gibt es **Temperatur kalt min/max (Tag)** und **Gradient: min** (warm minus kalt, 0 = nicht prüfen).
-- Nachts, wenn die Seiten sich angleichen, gelten die Nachtwerte für alle Sensoren zusammen, der Gradient wird nicht geprüft.
-- Ohne Sensoren für die kalte Seite gilt eine Spanne für alle Sensoren.
+**Gradient (only with cold-side sensors)**
+- By day **Temperature warm min/max (day)** applies to the warm side, plus **Temperature cold min/max (day)** and **Gradient: min** (warm minus cold, 0 = not checked).
+- At night, when the sides level out, the night values apply to all sensors together and the gradient is not checked.
+- Without cold-side sensors one range applies to all sensors.
 
-**Pflege-Log**
-- Zuletzt gefüttert / gehäutet / besprüht (`datetime`) plus Buttons zum Abstempeln
-- **Fütterung fällig** und **Nächste Fütterung**
+**Care log**
+- Last fed / shed / misted (`datetime`) plus buttons to stamp them
+- **Feeding: due** and **Feeding: next**
 
-**Lichtsteuerung** (mit Licht-Schaltern)
-- Die Schalter folgen den Lichtzeiten. Nach dem Schalten wird der Zustand geprüft: 3 Versuche im Abstand von 5 s, 12 Minuten Pause, 3 weitere Versuche, danach **Licht: Störung**.
-- **Licht: Automatik** schaltet das ein oder aus.
-- **Licht** zeigt, ob die hinterlegten Licht-Schalter an sind (alle an = an), und schaltet sie alle zusammen. Das berührt die Automatik nicht: Der Zustand bleibt, bis der Zeitplan beim nächsten Wechsel Tag/Nacht (oder bei Abkühlung, geänderten Lichtzeiten oder Neustart) wieder eingreift. Für längeres freies Schalten die Automatik ausschalten.
+**Light control** (with light switches)
+- The switches follow the light times, exact to the second. After switching, the state is verified: 3 attempts 5 s apart, a 12 minute pause, 3 more attempts, then **Light: fault**.
+- **Light: automation** turns this on or off.
+- **Light** shows whether the configured light switches are on (all on = on) and switches them all together. This does not touch the automation: the state stays until the schedule steps in again at the next day/night change (or on cooling, changed light times or a restart). To switch freely for longer, turn the automation off.
 
-**Abkühlung** (mit Licht-Schaltern)
-- Liegt die warme Seite 5 Minuten über **Abkühlung: ab Temperatur** (0 = aus), geht das Licht aus (**Abkühlung: aktiv**).
-- Es geht wieder an, wenn die warme Seite darunter liegt und der Unterschied zur kältesten Messung kleiner als **Abkühlung: max. Differenz** ist, 10 Minuten lang. Timeout nach 4 Stunden, Tagesende beendet die Abkühlung ebenfalls. Der Zustand überlebt einen Neustart.
+**Cooling** (with light switches)
+- If the warm side stays above **Cooling: above temperature** (0 = off) for 5 minutes, the light goes off (**Cooling: active**).
+- It comes back on when the warm side is below that value and the difference to the coldest reading is smaller than **Cooling: max. difference**, for 10 minutes. A timeout after 4 hours and the end of the day also end cooling. The state survives a restart.
 
-**Automatische Beregnung** (mit Beregnungs-Schalter)
-- Schalter **Beregnung: Automatik**: Ist er an und die Luftfeuchte unter **Beregnung: unter Luftfeuchte**, wird der Beregnungs-Schalter für **Beregnung: Dauer** eingeschaltet (nur am Tag). Zwischen zwei Beregnungen liegt mindestens der **Beregnung: Mindestabstand**; auch manuelles Beregnen zählt dafür.
+**Automatic misting** (with a misting switch)
+- Switch **Misting: automation**: when it is on and the humidity is below **Misting: below humidity**, the misting switch is turned on for **Misting: duration** (daytime only). At least **Misting: minimum interval** passes between two runs; manual misting counts for that, too.
 
-## Events für Automationen
-Das Event `terrarium_event` hat die Felder `terrarium` (Name), `species` (Art), `entry_id` und `type`. Bei Abkühlung kommt `temperature` (warme Seite) dazu, bei Lichtstörung `want_on` (`true` = Einschalten ist fehlgeschlagen, `false` = Ausschalten):
+## Events for automations
+The `terrarium_event` event has the fields `terrarium` (name), `species`, `entry_id` and `type`. Cooling events add `temperature` (warm side), light faults add `want_on` (`true` = switching on failed, `false` = switching off failed):
 `cooling_started`, `cooling_ended`, `light_fault`, `light_fault_cleared`, `misting_started`.
-Damit lassen sich Benachrichtigungen bauen, die Integration verschickt selbst keine.
+Use them to build notifications; the integration does not send any itself.
 
-## Eigene Artprofile
-`/config/terrarium_species.json` (überschreibt/ergänzt die mitgelieferten):
+## Custom species profiles
+`/config/terrarium_species.json` (overrides/extends the bundled ones):
 
 ```json
 {
-  "mein_tier": {
-    "name": "Genus species", "common": "Trivialname",
+  "my_animal": {
+    "name": "Genus species", "common": "Common name",
     "temp_min": 20, "temp_max": 30,
     "humidity_min": 50, "humidity_max": 80,
     "feeding_interval": 3,
@@ -73,9 +73,9 @@ Damit lassen sich Benachrichtigungen bauen, die Integration verschickt selbst ke
 }
 ```
 
-Optional sind alle Felder außer `name`: `cold_temp_min`, `cold_temp_max`, `gradient_min` (kalte Seite am Tag), sowie Nachtwerte `temp_min_night`, `temp_max_night`, `humidity_min_night`, `humidity_max_night` (sonst gleich den Tagwerten).
+All fields except `name` are optional: `cold_temp_min`, `cold_temp_max`, `gradient_min` (cold side by day), and night values `temp_min_night`, `temp_max_night`, `humidity_min_night`, `humidity_max_night` (otherwise equal to the day values).
 
-## Hinweise
-- Die mitgelieferten Werte sind grobe Startwerte (`"verified": false`), bitte gegen die eigene Haltung prüfen.
-- Temperaturen werden in °C verglichen.
-- Ein Wechsel des Artprofils setzt die Sollwerte auf die Profilwerte zurück.
+## Notes
+- The bundled values are rough starting points (`"verified": false`); please check them against your own husbandry.
+- Temperatures are compared in °C.
+- Changing the species profile resets the targets to the profile values.
