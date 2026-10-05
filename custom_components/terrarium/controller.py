@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import datetime, time, timedelta
 from typing import Any
 
@@ -14,6 +15,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import (
     async_track_state_change_event,
+    async_track_time_change,
     async_track_time_interval,
 )
 from homeassistant.helpers.start import async_at_started
@@ -106,6 +108,7 @@ class TerrariumController:
         )
         self._last_due = False
         self._last_day = True
+        self._unsub_phase_times: list[Callable[[], None]] = []
         self.device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
@@ -192,6 +195,9 @@ class TerrariumController:
         self.entry.async_on_unload(
             async_track_time_interval(self.hass, self._handle_tick, timedelta(minutes=1))
         )
+        # Switch exactly at light on/off; the minute tick above stays as a fallback
+        self._schedule_phase_times()
+        self.entry.async_on_unload(self._cancel_phase_times)
         if self.light_switches:
             # Bring the lights in line with the schedule once HA is up
             self.entry.async_on_unload(async_at_started(self.hass, self._started))
@@ -343,8 +349,31 @@ class TerrariumController:
     @callback
     def async_set_light_time(self, key: str, value: time) -> None:
         self.light_times[key] = value
+        self._schedule_phase_times()
         self._changed()
         self._schedule_light_sync()
+
+    @callback
+    def _schedule_phase_times(self) -> None:
+        """Call the tick exactly at the light-on and light-off time."""
+        self._cancel_phase_times()
+        for key in LIGHT_TIME_KEYS:
+            at = self.light_times[key]
+            self._unsub_phase_times.append(
+                async_track_time_change(
+                    self.hass,
+                    self._handle_tick,
+                    hour=at.hour,
+                    minute=at.minute,
+                    second=at.second,
+                )
+            )
+
+    @callback
+    def _cancel_phase_times(self) -> None:
+        for unsub in self._unsub_phase_times:
+            unsub()
+        self._unsub_phase_times.clear()
 
     @callback
     def async_set_auto_misting(self, value: bool) -> None:
